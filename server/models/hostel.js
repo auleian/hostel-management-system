@@ -1,4 +1,4 @@
-const mongoose = 'mongoose'
+const mongoose = require('mongoose') 
 
 const hostelSchema = new mongoose.Schema ({
     name: {
@@ -8,7 +8,7 @@ const hostelSchema = new mongoose.Schema ({
     },
     location: {
         type: String,
-        required: [true, 'Hostel location is required'],
+        required: true,
 
     },
     description: {
@@ -23,6 +23,12 @@ const hostelSchema = new mongoose.Schema ({
         type: String,
         enum: ['hostel shuttle', 'wifi', 'security','parking', 'library']
     },
-    
-    
+    genderPolicy: {
+        type: String,
+        enum: ['male', 'female', 'mixed'],
+        default : 'mixed'
+    },
+    contactInfo: {
+    }
 })
+module.exports = mongoose.model('Hostel', hostelSchema)
