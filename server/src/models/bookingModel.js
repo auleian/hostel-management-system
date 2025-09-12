@@ -16,13 +16,18 @@ const bookingSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
+     hostel: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Hostel",
+      required: true
+    },
+    roomType: {
+      type: String,
+      required: true,
+      enum: ["single", "double", "dorm"] // example room types
+    },
     checkInDate: {
         type: Date,
-        required: true
-    },
-   
-    roomType: {
-        type: String,
         required: true
     }
 });
