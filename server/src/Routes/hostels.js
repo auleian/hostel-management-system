@@ -1,12 +1,13 @@
-const express = require('express')
-const router = express.Router()
-const hostel = require('../models/hostel')
-const { getHostel, addHostel, updateHostel } = require('../controllers/hostelController')
+import { Router } from "express";
+import { getHostel, addHostel, updateHostel }  from '../controllers/hostelController.js';
+import Hostel from '../models/hostel.js';
+
+const router = Router();
 
 //getting all hostels
 router.get('/', async (req, res) => {
   try {
-    const hostels = await hostels.find()
+    const hostels = await Hostel.find()
     res.json(hostels)
   } catch (error) {
     res.status(500).json({ message: error.message })
@@ -32,6 +33,4 @@ router.delete('/:id', getHostel, async (req, res) => {
     }
 })
 
-
-
-module.exports = router
+export default router;
