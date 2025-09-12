@@ -1,12 +1,7 @@
 import mongoose from "mongoose";
 
 const bookingSchema = new mongoose.Schema({
-    firstname: {
-        type: String,
-        trim: true,
-        required: true
-    },
-    lastname: {
+    username: {
         type: String,
         trim: true,
         required: true
