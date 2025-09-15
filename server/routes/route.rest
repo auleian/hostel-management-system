@@ -1,1 +1,11 @@
-GET http://localhost:5000/1
+POST http://localhost:5000/
+
+{
+    "name": "Nalika Hostel",
+    "location": "Kikoni" ,
+    "description": "A peaceful and conducive environment for learning.",
+    "rules": "No smoking, No pets",
+    "amenities": "hostel shuttle, wifi, security",
+    "genderPolicy": "mixed",
+    "contactInfo": "info@nalikahostel.com"
+}

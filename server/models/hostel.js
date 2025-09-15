@@ -29,6 +29,8 @@ const hostelSchema = new mongoose.Schema ({
         default : 'mixed'
     },
     contactInfo: {
+        type: String,
     }
 })
-module.exports = mongoose.model('Hostel', hostelSchema)
+const Hostel = mongoose.model('Hostel', hostelSchema)
+module.exports = Hostel
