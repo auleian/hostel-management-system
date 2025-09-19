@@ -25,7 +25,7 @@ function Navbar() {
     <div>
         <div className={`navbar ${show ? "nav_show" : ""}`}>
           <div className='nav_contents'>
-                <div className='navs'>
+                <div className='nav_links'>
                     <ul>
                         <li> <Link to= "/" 
                               className={location.pathname === "/" ? "active" : ""}>
@@ -42,8 +42,7 @@ function Navbar() {
                     </ul>
                 </div>
                 <div className='nav_login'>
-                    <h2><Link to="/Login">Login</Link></h2>
-                    <button><Link to="/Register" className='register-btn'>Register</Link></button>
+                    <h2><Link to="/Login" className='login-btn'>Login</Link></h2>
                 </div>
           </div>
             
