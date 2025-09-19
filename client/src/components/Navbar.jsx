@@ -25,21 +25,30 @@ function Navbar() {
     <div>
         <div className={`navbar ${show ? "nav_show" : ""}`}>
           <div className='nav_contents'>
-            <ul>
-                <li> <Link to= "/" className={location.pathname === "/" ? "active" : ""}>Home</Link></li>
-                <li> <Link to= "/Hostels" className={location.pathname === "/Hostels" ? "active" : ""}>Hostels</Link></li>
-                <li> <Link to= "/Bookings" className={location.pathname === "/Bookings" ? "active" : ""}>Bookings</Link></li>
-                <li> <Link to= "/ContactUs" className={location.pathname === "/ContactUs" ? "active" : ""}>Contact Us</Link></li>      
-            </ul>
+                <div className='navs'>
+                    <ul>
+                        <li> <Link to= "/" 
+                              className={location.pathname === "/" ? "active" : ""}>
+                              Home</Link></li>
+                        <li> <Link to= "/Hostels"
+                              className={location.pathname === "/Hostels" ? "active" : ""}>
+                              Hostels</Link></li>
+                        <li> <Link to= "/Bookings"
+                              className={location.pathname === "/Bookings" ? "active" : ""}>
+                              Bookings</Link></li>
+                        <li> <Link to= "/ContactUs"
+                              className={location.pathname === "/ContactUs" ? "active" : ""}>
+                                Contact Us</Link></li>
+                    </ul>
+                </div>
+                <div className='nav_login'>
+                    <h2><Link to="/Login">Login</Link></h2>
+                    <button><Link to="/Register" className='register-btn'>Register</Link></button>
+                </div>
           </div>
-            <div className='nav_login'>
-              <h1><Link to="/Login">Login</Link></h1>
-              <button><Link to="/Register" className=''>Register</Link></button>
-            </div>
-
+            
         </div>
 
-      
     </div>
   )
 }
