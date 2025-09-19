@@ -17,12 +17,12 @@ body, #root {
     color: #ead2ac;
     font-size: 1.5rem;
     font-weight: bold;
+    position: fixed;
 
 }
 
 .nav_show{
     background-color: #4281A4;
-    box-shadow: 0 2px 8px #7ecffa;
 }
 
 .nav_contents {
