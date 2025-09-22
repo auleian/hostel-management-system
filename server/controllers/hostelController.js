@@ -1,7 +1,28 @@
 const express = require('express')
 const Hostel = require('../models/hostel')
 
+//get all hostels
+const getHostels = async (req, res) => {
+  try {
+    const { name, minPrice, maxPrice } = req.query
+    let filter = {}
 
+    if (name) {
+      filter.name = { $regex: name, $options: 'i' }
+    }
+    if (minPrice) {
+      filter.price = { ...filter.price, $gte: Number(minPrice) }
+    }
+    if (maxPrice) {
+      filter.price = { ...filter.price, $lte: Number(maxPrice) }
+    }
+
+    const hostels = await Hostel.find(filter)
+    res.json(hostels)
+  } catch (error) {
+    res.status(500).json({ message: error.message })
+  }
+}
 
 //function to create a new hostel
 const addHostel = async (req, res) => {
@@ -12,7 +33,8 @@ const addHostel = async (req, res) => {
     rules: req.body.rules,
     amenities: req.body.amenities,
     genderPolicy: req.body.genderPolicy,
-    contactInfo: req.body.contactInfo
+    contactInfo: req.body.contactInfo,
+    price: req.body.price
   })
 
   try {
@@ -46,6 +68,9 @@ const updateHostel = async (req, res) => {
         if (req.body.contactInfo != null) {
             res.hostel.contactInfo = req.body.contactInfo
         }
+        if (req.body.price != null) {
+            res.hostel.price = req.body.price
+        }
         
         const updatedHostel = await res.hostel.save()
         res.json(updatedHostel)
@@ -69,4 +94,4 @@ const getHostel = async (req, res, next) => {
     res.hostel = hostel
     next()
 }
-module.exports = { getHostel, addHostel, updateHostel }
+module.exports = { getHostels,getHostel, addHostel, updateHostel }

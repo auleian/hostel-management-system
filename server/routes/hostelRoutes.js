@@ -1,17 +1,10 @@
 const express = require('express')
 const router = express.Router()
 const Hostel = require('../models/hostel')
-const { getHostel, addHostel, updateHostel } = require('../controllers/hostelController')
+const { getHostels, getHostel, addHostel, updateHostel } = require('../controllers/hostelController')
 
 //getting all hostels
-router.get('/', async (req, res) => {
-  try {
-    const hostels = await Hostel.find()
-    res.json(hostels)
-  } catch (error) {
-    res.status(500).json({ message: error.message })
-  }
-})
+router.get('/', getHostels)
 
 //getting a specific hostel with id
 router.get('/:id', getHostel)
