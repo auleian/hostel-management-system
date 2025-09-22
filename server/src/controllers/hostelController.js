@@ -1,8 +1,8 @@
-const express = require('express')
-const Hostel = require('../models/hostel')
+import express from "express"
+import Hostel from '../models/hostelModel.js'
 
 //get all hostels
-const getHostels = async (req, res) => {
+export const getHostels = async (req, res) => {
   try {
     const { name, minPrice, maxPrice } = req.query
     let filter = {}
@@ -25,7 +25,7 @@ const getHostels = async (req, res) => {
 }
 
 //function to create a new hostel
-const addHostel = async (req, res) => {
+export const addHostel = async (req, res) => {
   const hostel = new Hostel({
     name: req.body.name,
     location: req.body.location,
@@ -45,7 +45,8 @@ const addHostel = async (req, res) => {
   }
 }
 
-const updateHostel = async (req, res) => {
+//function to update a hostel
+export const updateHostel = async (req, res) => {
     try {
         if (req.body.name != null) {
             res.hostel.name = req.body.name
@@ -81,7 +82,7 @@ const updateHostel = async (req, res) => {
 
 
 //function to get hostel by id
-const getHostel = async (req, res, next) => {
+export const getHostel = async (req, res, next) => {
     let hostel 
     try {
         hostel = await Hostel.findById(req.params.id)
@@ -94,4 +95,3 @@ const getHostel = async (req, res, next) => {
     res.hostel = hostel
     next()
 }
-module.exports = { getHostels,getHostel, addHostel, updateHostel }

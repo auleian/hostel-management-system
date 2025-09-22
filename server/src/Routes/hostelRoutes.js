@@ -1,7 +1,7 @@
-const express = require('express')
-const router = express.Router()
-const Hostel = require('../models/hostel')
-const { getHostels, getHostel, addHostel, updateHostel } = require('../controllers/hostelController')
+import { Router } from "express";
+import {getHostels, getHostel, addHostel, updateHostel }  from '../controllers/hostelController.js';
+
+const router = Router();
 
 //getting all hostels
 router.get('/', getHostels)
@@ -25,6 +25,4 @@ router.delete('/:id', getHostel, async (req, res) => {
     }
 })
 
-
-
-module.exports = router
+export default router;

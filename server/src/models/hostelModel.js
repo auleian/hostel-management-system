@@ -1,4 +1,4 @@
-const mongoose = require('mongoose') 
+import mongoose from 'mongoose';
 
 const hostelSchema = new mongoose.Schema ({
     name: {
@@ -13,11 +13,11 @@ const hostelSchema = new mongoose.Schema ({
     },
     description: {
         type: String,
-        maxlength: [1000, 'Description can not exceed 1000 characters ']
+        maxlength: 1000
     }, 
     rules: {
         type: String,
-        maxlength: [400, 'Hostel rules can not be more than 400 characters ']
+        maxlength: 400
     },
     amenities: {
         type: String,
@@ -33,9 +33,10 @@ const hostelSchema = new mongoose.Schema ({
     },
     price: {
         type: Number,
-        required: true,
-        min: 0
+        required: true
     }
+
 })
-const Hostel = mongoose.model('Hostel', hostelSchema)
-module.exports = Hostel
+
+const Hostel = mongoose.model('Hostel', hostelSchema);
+export default Hostel;
