@@ -13,11 +13,11 @@ const hostelSchema = new mongoose.Schema ({
     },
     description: {
         type: String,
-        maxlength: [1000, 'Description can not exceed 1000 characters ']
+        maxlength: 1000
     }, 
     rules: {
         type: String,
-        maxlength: [400, 'Hostel rules can not be more than 400 characters ']
+        maxlength: 400
     },
     amenities: {
         type: String,
@@ -29,6 +29,14 @@ const hostelSchema = new mongoose.Schema ({
         default : 'mixed'
     },
     contactInfo: {
+        type: String,
+    },
+    price: {
+        type: Number,
+        required: true
     }
+
 })
-export default mongoose.model('Hostel', hostelSchema);
+
+const Hostel = mongoose.model('Hostel', hostelSchema);
+export default Hostel;

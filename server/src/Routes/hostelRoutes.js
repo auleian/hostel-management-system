@@ -1,18 +1,10 @@
 import { Router } from "express";
-import { getHostel, addHostel, updateHostel }  from '../controllers/hostelController.js';
-import Hostel from '../models/hostel.js';
+import {getHostels, getHostel, addHostel, updateHostel }  from '../controllers/hostelController.js';
 
 const router = Router();
 
 //getting all hostels
-router.get('/', async (req, res) => {
-  try {
-    const hostels = await Hostel.find()
-    res.json(hostels)
-  } catch (error) {
-    res.status(500).json({ message: error.message })
-  }
-})
+router.get('/', getHostels)
 
 //getting a specific hostel with id
 router.get('/:id', getHostel)

@@ -4,7 +4,7 @@ import cors from "cors";
 import config from "./config/database.js";
 
 import bookingRoutes from "./Routes/bookingRoutes.js";
-import hostelRoutes from "./Routes/hostels.js";
+import hostelRoutes from "./Routes/hostelRoutes.js";
 
 const app = express();
 
@@ -17,9 +17,9 @@ app.use(express.urlencoded({ extended: true }));
 async function connectDB() {
   try {
     await mongoose.connect(config.database);
-    console.log("✅ Connected to MongoDB");
+    console.log("Connected to Database");
   } catch (error) {
-    console.error("MongoDB connection error:", error.message);
+    console.error("Database connection error:", error.message);
     process.exit(1); // stop server if DB fails
   }
 }
