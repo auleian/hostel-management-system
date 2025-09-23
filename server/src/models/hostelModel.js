@@ -6,6 +6,10 @@ const hostelSchema = new mongoose.Schema ({
         required: [true, 'Hostel name is required'],
         maxlength: [50, 'Hostel name can not be more than 100 characters ']
     },
+    image: {
+        type: String,
+        default: ''
+    },
     location: {
         type: String,
         required: true,
@@ -20,7 +24,7 @@ const hostelSchema = new mongoose.Schema ({
         maxlength: 400
     },
     amenities: {
-        type: String,
+        type: [String],
         enum: ['hostel shuttle', 'wifi', 'security','parking', 'library']
     },
     genderPolicy: {
