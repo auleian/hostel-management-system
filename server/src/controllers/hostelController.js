@@ -28,6 +28,7 @@ export const getHostels = async (req, res) => {
 export const addHostel = async (req, res) => {
   const hostel = new Hostel({
     name: req.body.name,
+    image: req.body.image,
     location: req.body.location,
     description: req.body.description,
     rules: req.body.rules,
@@ -50,6 +51,9 @@ export const updateHostel = async (req, res) => {
     try {
         if (req.body.name != null) {
             res.hostel.name = req.body.name
+        }
+        if (req.body.image != null) {
+            res.hostel.image = req.body.image
         }
         if (req.body.location != null) {
             res.hostel.location = req.body.location
