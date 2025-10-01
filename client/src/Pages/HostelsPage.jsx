@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import HostelCard from '../components/HostelCard';
+import './HostelsPage.css';
 
 const api_url = import.meta.env.VITE_API_BASE_URL;
 
@@ -29,7 +30,7 @@ const HostelsPage = () => {
   if (error) return <div>{error}</div>;
 
   return (
-    <div>
+    <div className="hostels-page">
       {hostels.length === 0 ? (
         <div>No hostels found.</div>
       ) : (

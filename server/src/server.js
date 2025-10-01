@@ -2,12 +2,18 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import config from "./config/database.js";
+
 import bookingRoutes from "./routes/bookingRoutes.js";
 import hostelRoutes from "./routes/hostelRoutes.js";
+import path from "path";
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 
-
+// Serve images from /media
+app.use('/media', express.static(path.join(__dirname, 'media')));
 
 // Middleware
 app.use(cors());
