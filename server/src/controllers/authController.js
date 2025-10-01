@@ -1,6 +1,7 @@
-const jwt = require('jsonwebtoken');
-const { validationResult } = require('express-validator');
-import User from '../models/User';
+import jwt from 'jsonwebtoken';
+import { validationResult } from 'express-validator';
+import User from "../models/User.js";
+
 
 const generateToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '7d' });
