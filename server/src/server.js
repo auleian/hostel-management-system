@@ -5,6 +5,9 @@ import config from "./config/database.js";
 
 import bookingRoutes from "./routes/bookingRoutes.js";
 import hostelRoutes from "./routes/hostelRoutes.js";
+import roomRoutes from "./routes/roomRoutes.js";
+import authRoutes from "./routes/auth.js";
+
 import path from "path";
 import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
@@ -34,8 +37,10 @@ async function connectDB() {
 connectDB();
 
 // Routes
+app.use("/api/auth", authRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/hostels", hostelRoutes);
+app.use("/api/rooms", roomRoutes);
 
 // 404 handler
 app.use((req, res) => {

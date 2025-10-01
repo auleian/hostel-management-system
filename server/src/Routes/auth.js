@@ -23,11 +23,4 @@ router.post(
   authController.login
 );
 
-// example protected route
-router.get('/me', auth, async (req, res) => {
-  const User = require('/models/User');
-  const user = await User.findById(req.user.id).select('-password');
-  res.json(user);
-});
-
-module.exports = router;
+export default router;

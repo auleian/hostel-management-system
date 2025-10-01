@@ -35,11 +35,7 @@ const hostelSchema = new mongoose.Schema ({
     contactInfo: {
         type: String,
     },
-    price: {
-        type: Number,
-        required: true
-    }
-
+    
 })
 
 const Hostel = mongoose.model('Hostel', hostelSchema);
