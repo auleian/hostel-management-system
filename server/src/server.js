@@ -3,8 +3,8 @@ import mongoose from "mongoose";
 import cors from "cors";
 import config from "./config/database.js";
 
-import bookingRoutes from "./Routes/bookingRoutes.js";
-import hostelRoutes from "./Routes/hostelRoutes.js";
+import bookingRoutes from "./routes/bookingRoutes.js";
+import hostelRoutes from "./routes/hostelRoutes.js";
 import path from "path";
 import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
@@ -23,6 +23,7 @@ app.use(express.urlencoded({ extended: true }));
 // Database connection
 async function connectDB() {
   try {
+    console.log("Connecting to Database...");
     await mongoose.connect(config.database);
     console.log("Connected to Database");
   } catch (error) {
@@ -41,4 +42,11 @@ app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });
 });
 
-export default app;
+
+const PORT = process.env.PORT || 3100;
+
+
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
+
