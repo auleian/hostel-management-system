@@ -1,0 +1,46 @@
+import express from "express";
+import mongoose from "mongoose";
+import cors from "cors";
+import config from "./config/database.js";
+import bookingRoutes from "./routes/bookingRoutes.js";
+import hostelRoutes from "./routes/hostelRoutes.js";
+
+const app = express();
+
+
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Database connection
+async function connectDB() {
+  try {
+    console.log("Connecting to Database...");
+    await mongoose.connect(config.database);
+    console.log("Connected to Database");
+  } catch (error) {
+    console.error("Database connection error:", error.message);
+    process.exit(1); // stop server if DB fails
+  }
+}
+connectDB();
+
+// Routes
+app.use("/api/bookings", bookingRoutes);
+app.use("/api/hostels", hostelRoutes);
+
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ message: "Route not found" });
+});
+
+
+const PORT = process.env.PORT || 3100;
+
+
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
+
