@@ -1,4 +1,3 @@
-import express from "express"
 import Hostel from '../models/hostelModel.js'
 
 //get all hostels
