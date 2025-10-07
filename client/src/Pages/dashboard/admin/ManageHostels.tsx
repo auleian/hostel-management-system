@@ -7,6 +7,8 @@ import { Building2, MapPin, Users, Plus, Search, Edit, Trash2 } from "lucide-rea
 import { Link } from "react-router-dom"
 import { AdminLayout } from "@/components/AdminLayout"
 
+
+
 export default function HostelsPage() {
   return (
     <AdminLayout>

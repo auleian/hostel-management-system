@@ -1,9 +1,10 @@
 export interface Hostel {
-  id: string
+  _id: string
   name: string
   location: string
   description: string
   image?: string
+  images?: string[]
   availableRooms: number
   genderPolicy: "male" | "female" | "mixed"
   amenities: string[]
@@ -14,7 +15,7 @@ export interface Hostel {
 }
 
 export interface Room {
-  id: string
+  _id: string
   hostelId: string
   type: "single" | "double" | "shared"
   price: number
@@ -31,7 +32,7 @@ export interface User {
 }
 
 export interface Booking {
-  id: string
+  _id: string
   userId: string
   hostelId: string
   roomId: string

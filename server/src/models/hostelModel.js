@@ -6,9 +6,9 @@ const hostelSchema = new mongoose.Schema ({
         required: [true, 'Hostel name is required'],
         maxlength: [50, 'Hostel name can not be more than 100 characters ']
     },
-    image: {
-        type: String,
-        default: ''
+    images: {
+        type: [String],
+        default: []
     },
     location: {
         type: String,

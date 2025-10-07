@@ -34,7 +34,7 @@ const bookingSchema = new mongoose.Schema({
     bookedby: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
-        required: true
+        // Made optional to allow guest bookings until auth is integrated
     },
     createdAt: {
         type: Date,
