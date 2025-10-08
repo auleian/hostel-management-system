@@ -1,3 +1,4 @@
 node_modules/
 routes/route.rest
 .env
+media/
