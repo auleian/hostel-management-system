@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { validationResult } from 'express-validator';
 import User from "../models/User.js";
+import { hashPassword, comparePassword } from '../middleware/auth.js';
 
 
 const generateToken = (id) =>
@@ -15,7 +16,7 @@ export const register = async (req, res) => {
     let user = await User.findOne({ email });
     if (user) return res.status(400).json({ msg: 'User already exists' });
 
-    user = new User({ name, email, password });
+    user = new User({ name, email, password: await hashPassword(password) });
     await user.save();
 
     const token = generateToken(user._id);
@@ -48,11 +49,11 @@ export const login = async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ msg: 'Invalid credentials' });
 
-    const isMatch = await user.matchPassword(password);
+    const isMatch = await comparePassword(password, user.password);
     if (!isMatch) return res.status(400).json({ msg: 'Invalid credentials' });
 
     const token = generateToken(user._id);
-    res.cookie('token', token, {
+    res.cookie('token', token, { 
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
