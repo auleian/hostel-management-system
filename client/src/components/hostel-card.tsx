@@ -1,9 +1,11 @@
+import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { MapPin, Users, Wifi, Shield, Car, BookOpen, Bus } from "lucide-react"
 import type { Hostel } from "../lib/types"
+import axios from "axios"
 
 const amenityIcons = {
   wifi: Wifi,
@@ -14,10 +16,60 @@ const amenityIcons = {
 }
 
 interface HostelCardProps {
-  hostel: Hostel
+  hostelId: string
 }
 
-export function HostelCard({ hostel }: HostelCardProps) {
+export function HostelCard({ hostelId }: HostelCardProps) {
+  const [hostel, setHostel] = useState<Hostel | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!hostelId) {
+      setError("No hostel ID provided.")
+      setLoading(false)
+      return
+    }
+    async function fetchHostel() {
+      setLoading(true)
+      setError(null)
+      try {
+        const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
+        const res = await axios.get(`${apiBaseUrl}/hostels/${hostelId}`)
+        // Map _id to id for frontend consistency
+        const hostelData = res.data
+        setHostel({
+          ...hostelData,
+          id: hostelData._id,
+        })
+      } catch (err) {
+        setError("Failed to load hostel.")
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchHostel()
+  }, [hostelId])
+
+  if (loading) {
+    return (
+      <Card className="overflow-hidden">
+        <CardContent className="p-4">
+          <p>Loading...</p>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  if (error || !hostel) {
+    return (
+      <Card className="overflow-hidden">
+        <CardContent className="p-4">
+          <p className="text-red-500">{error || "Hostel not found."}</p>
+        </CardContent>
+      </Card>
+    )
+  }
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
       <div className="relative h-48 w-full overflow-hidden">
@@ -58,7 +110,7 @@ export function HostelCard({ hostel }: HostelCardProps) {
         <div className="pt-2 border-t">
           <p className="text-sm text-muted-foreground">Price range</p>
           <p className="font-bold text-lg text-primary">
-            UGX {hostel.priceRange.min.toLocaleString()} - {hostel.priceRange.max.toLocaleString()}
+            UGX {hostel.price?.toLocaleString()}
             <span className="text-sm font-normal text-muted-foreground">/semester</span>
           </p>
         </div>

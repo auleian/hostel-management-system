@@ -7,10 +7,8 @@ export interface Hostel {
   availableRooms: number
   genderPolicy: "male" | "female" | "mixed"
   amenities: string[]
-  priceRange: {
-    min: number
-    max: number
-  }
+  price?: number
+  // priceRange?: { min: number; max: number }
 }
 
 export interface Room {

@@ -1,4 +1,5 @@
 import Hostel from '../models/hostelModel.js'
+import mongoose from 'mongoose'
 
 //get all hostels
 export const getHostels = async (req, res) => {
@@ -86,15 +87,18 @@ export const updateHostel = async (req, res) => {
 
 //function to get hostel by id
 export const getHostel = async (req, res, next) => {
-    let hostel 
-    try {
-        hostel = await Hostel.findById(req.params.id)
-        if (hostel === null) {
-            return res.status(404).json({ message: 'Hostel not found' })
-        }
-    }catch (error) {
-        return res.status(500).json({ message: error.message }) 
+     try {
+    const { id } = req.params
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: 'Invalid hostel ID' })
     }
-    res.hostel = hostel
-    next()
+    const hostel = await Hostel.findById(id)
+    if (!hostel) {
+      return res.status(404).json({ message: 'Hostel not found' })
+    }
+    res.json(hostel)
+  } catch (err) {
+    res.status(500).json({ message: err.message })
+  }
+  next()
 }

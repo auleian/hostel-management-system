@@ -32,6 +32,16 @@ const hostelSchema = new mongoose.Schema ({
         enum: ['male', 'female', 'mixed'],
         default : 'mixed'
     },
+    priceRange: {
+        min: {
+            type: Number,
+            min: 0
+        },
+        max: {
+            type: Number,
+            min: 0
+        }
+    },
     contactInfo: {
         type: String,
     },
