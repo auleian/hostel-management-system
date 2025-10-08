@@ -29,8 +29,10 @@ export const getRooms = async (req, res) => {
 
 
 export const addRoom = async (req, res) => {
+    const images = req.files ? req.files.map(file => file.filename) : [];
     const room = new Room({
         roomNumber: req.body.roomNumber,
+        images,
         roomType: req.body.roomType,
         moreInfo: req.body.moreInfo,
         price: req.body.price,
@@ -38,7 +40,8 @@ export const addRoom = async (req, res) => {
         hostel: req.body.hostel,
         isSelfContained: req.body.isSelfContained,
         amenities: req.body.amenities,
-        createdBy: req.user._id
+        // TODO 
+        // createdBy: req.user._id
     })
     try {
         const newRoom = await room.save()

@@ -18,12 +18,15 @@ interface HostelCardProps {
 }
 
 export function HostelCard({ hostel }: HostelCardProps) {
+  const resolvedmediaBaseURL = `${import.meta.env.VITE_API_BASE_URL?.split('api')[0]}media/`;
+
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
       <div className="relative h-48 w-full overflow-hidden">
         <img
-          src={hostel.image || "/placeholder.svg"}
+          src={`${resolvedmediaBaseURL}${hostel.images?.[0]}` || "luxury-hostel-suite.jpg"}
           alt={hostel.name}
+          onError={(e) => { (e.target as HTMLImageElement).src = "/luxury-hostel-suite.jpg" }}
           className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 hover:scale-105"
         />
         <div className="absolute top-3 right-3">
@@ -57,15 +60,20 @@ export function HostelCard({ hostel }: HostelCardProps) {
         </div>
         <div className="pt-2 border-t">
           <p className="text-sm text-muted-foreground">Price range</p>
-          <p className="font-bold text-lg text-primary">
-            UGX {hostel.priceRange.min.toLocaleString()} - {hostel.priceRange.max.toLocaleString()}
-            <span className="text-sm font-normal text-muted-foreground">/semester</span>
-          </p>
+          {
+            hostel.priceRange && hostel.priceRange.max && hostel.priceRange.min && (
+              <p className="font-bold text-lg text-primary">
+                UGX {hostel.priceRange.min.toLocaleString()} - {hostel.priceRange.max.toLocaleString()}
+                <span className="text-sm font-normal text-muted-foreground">/semester</span>
+              </p>
+            )
+          }
+
         </div>
       </CardContent>
       <CardFooter className="p-4 pt-0">
         <Button asChild className="w-full">
-          <Link className="text-white hover:text-white" to={`/hostel/${hostel.id}`}>View Details</Link>
+          <Link className="text-white hover:text-white" to={`/hostel/${hostel._id}`}>View Details</Link>
         </Button>
       </CardFooter>
     </Card>
