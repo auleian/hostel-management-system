@@ -31,11 +31,9 @@ export default function SearchPage() {
         const res = await axios.get(`${apiBaseUrl}/hostels`)
         console.log("Fetched hostels:", res.data)
         setHostels(res.data)
-      } catch (err) {
+      } catch (error) {
         setError("Failed to load hostels.")
-      } finally {
-        setLoading(false)
-      }
+      } 
     }
     fetchHostels()
   }, [])
@@ -61,23 +59,32 @@ export default function SearchPage() {
 
       // Gender policy filter
       if (filters.genderPolicy !== "all" &&
-         hostel.genderPolicy && hostel.genderPolicy !== filters.genderPolicy) {
+         hostel.genderPolicy && 
+         hostel.genderPolicy !== filters.genderPolicy) {
       return false;
      }
 
       // Price range filter
-      if (
+     /* if (
         typeof hostel.price !== "number" ||
       hostel.price < filters.priceRange.min ||
       hostel.price > filters.priceRange.max
       ) {
         return false
-      }
+      }*/
 
     // Amenities filter (skip if missing)
     if (filters.amenities.length > 0 && hostel.amenities) {
       const hasAllAmenities = filters.amenities.every((amenity) => hostel.amenities.includes(amenity));
       if (!hasAllAmenities) return false;
+
+      // Self-contained filter
+    if (
+      filters.isSelfContained === true &&
+      hostel.isSelfContained !== true
+    ) {
+      return false
+    }
     }
 
       return true

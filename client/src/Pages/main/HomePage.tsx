@@ -17,7 +17,7 @@ export default function HomePage() {
       <section className="relative bg-gradient-to-br from-primary/10 via-background to-secondary/10 py-20 md:py-32">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center space-y-6">
-            <h1 className="text-4xl md:text-6xl font-bold text-balance">Find Your Perfect Student Accommodation</h1>
+            <h1 className="text-4xl md:text-6xl font-bold text-balance">Home away from Home</h1>
             <p className="text-lg md:text-xl text-muted-foreground text-pretty">
               Browse hundreds of verified hostels near your campus. Book your room in minutes and focus on what matters
               - your education.

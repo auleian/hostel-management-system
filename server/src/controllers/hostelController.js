@@ -73,8 +73,8 @@ export const updateHostel = async (req, res) => {
         if (req.body.contactInfo != null) {
             res.hostel.contactInfo = req.body.contactInfo
         }
-        if (req.body.price != null) {
-            res.hostel.price = req.body.price
+         if (req.body.priceRange != null) {
+            res.hostel.priceRange = req.body.priceRange
         }
         
         const updatedHostel = await res.hostel.save()

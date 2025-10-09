@@ -33,14 +33,8 @@ const hostelSchema = new mongoose.Schema ({
         default : 'mixed'
     },
     priceRange: {
-        min: {
-            type: Number,
-            min: 0
-        },
-        max: {
-            type: Number,
-            min: 0
-        }
+        min: Number,
+        max: Number,
     },
     contactInfo: {
         type: String,
