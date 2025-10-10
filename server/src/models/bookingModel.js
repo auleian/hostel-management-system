@@ -1,20 +1,10 @@
 import mongoose from "mongoose";
 
 const bookingSchema = new mongoose.Schema({
-    username: {
-        type: String,
-        trim: true,
+    user:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
         required: true
-    },
-    email: {
-        type: String,
-        required: true,
-        trim: true
-    },
-    phonenumber: {
-        type: String,
-        required: true,
-        unique: true
     },
     room: {
         type: mongoose.Schema.Types.ObjectId,
