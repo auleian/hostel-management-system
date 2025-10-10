@@ -1,7 +1,6 @@
 import jwt from 'jsonwebtoken';
 
-
-export default function (req, res, next) {
+export const protect = (req, res, next) => {
   // Try Authorization header first then cookie
   const authHeader = req.header('Authorization') || req.headers['authorization'];
   let token;

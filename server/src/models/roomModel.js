@@ -37,6 +37,10 @@ const roomSchema = new mongoose.Schema ({
         type: [String],
         enum: ['wifi', 'air conditioning', 'heating', 'tv', 'mini fridge']
     },
+    images: {
+        type: [String],
+        required: [true, 'Room images are required']
+    },
     createdAt: {
         type: Date,
         default: Date.now

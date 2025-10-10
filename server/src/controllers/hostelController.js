@@ -1,5 +1,7 @@
 import Hostel from '../models/hostelModel.js'
 import mongoose from 'mongoose'
+import Room from '../models/roomModel.js'
+
 
 //get all hostels
 export const getHostels = async (req, res) => {
@@ -24,7 +26,24 @@ export const getHostels = async (req, res) => {
     /*console.log("Filter query:", JSON.stringify(filter, null, 2));*/
 
     const hostels = await Hostel.find(filter)
-    res.json(hostels)
+    const hostelsWithPriceRange = await Promise.all(hostels.map(async h => {
+      const hostel = h.toObject()
+      const rooms = await Room.find({ hostel: hostel._id })
+
+      if (rooms.length > 0) {
+        const prices = rooms.map(r => r.price)
+        hostel.priceRange = {
+          min: Math.min(...prices),
+          max: Math.max(...prices)
+        }
+      } else {
+        hostel.priceRange = { min: null, max: null }
+      }
+
+      return hostel
+    }))
+
+    res.json(hostelsWithPriceRange)
   } catch (error) {
     res.status(500).json({ message: error.message })
   }
@@ -32,9 +51,10 @@ export const getHostels = async (req, res) => {
 
 //function to create a new hostel
 export const addHostel = async (req, res) => {
+  const images = req.files ? req.files.map(file => file.filename) : [];
   const hostel = new Hostel({
     name: req.body.name,
-    image: req.body.image,
+    images,
     location: req.body.location,
     description: req.body.description,
     rules: req.body.rules,

@@ -52,7 +52,7 @@ export const login = async (req, res) => {
     if (!isMatch) return res.status(400).json({ msg: 'Invalid credentials' });
 
     const token = generateToken(user._id);
-    res.cookie('token', token, {
+    res.cookie('token', token, { 
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',

@@ -1,13 +1,54 @@
 import { Link } from "react-router-dom"
+import { useEffect, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Header } from "@/components/header"
 import { HostelCard } from "@/components/hostel-card"
 import { mockHostels } from "../../lib/mock-data"
 import { Search, Shield, Clock, Star } from "lucide-react"
+import api from '@/lib/api'
+import { useToast } from '@/hooks/use-toast'
 
 export default function HomePage() {
-  // Show first 6 hostels on landing page
-  const featuredHostels = mockHostels.slice(0, 6)
+  const { toast } = useToast()
+  const [hostels, setHostels] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    let ignore = false
+    const fetchHostels = async () => {
+      try {
+        setLoading(true)
+        const res = await api.get('/hostels')
+        const data = res.data || []
+        if (!ignore) {
+          if (Array.isArray(data) && data.length > 0) {
+            setHostels(data)
+          } else {
+            setHostels(mockHostels)
+            toast({
+              title: 'Showing sample data',
+              description: 'No hostels returned from server. Displaying mock listings.',
+            })
+          }
+        }
+      } catch (err:any) {
+        if (!ignore) {
+          setHostels(mockHostels)
+          toast({
+            title: 'Using mock data',
+            description: err.response?.data?.message || 'Failed to load hostels from backend.',
+            variant: 'destructive'
+          })
+        }
+      } finally {
+        if (!ignore) setLoading(false)
+      }
+    }
+    fetchHostels()
+    return () => { ignore = true }
+  }, [toast])
+
+  const featuredHostels = hostels.slice(0, 6)
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -90,11 +131,15 @@ export default function HomePage() {
               <Link to="/search">View All</Link>
             </Button>
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {featuredHostels.map((hostel) => (
-              <HostelCard key={hostel.id} hostel={hostel} />
-            ))}
-          </div>
+          {loading ? (
+            <div className="py-12 text-center text-muted-foreground">Loading hostels...</div>
+          ) : (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {featuredHostels.map((hostel:any) => (
+                <HostelCard key={hostel._id || hostel.id} hostel={hostel} />
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
