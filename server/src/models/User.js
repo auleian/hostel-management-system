@@ -4,9 +4,16 @@ const bcrypt = require('bcryptjs');
 const UserSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true, lowercase: true },
-  password: { type: String, required: true }
+  contact: {type: String, required: true},
+  password: { type: String, required: true },
+  university: {type: String, required: true},
+  nextOfKin: {
+    name: {type: String, required: true},
+    contact: {type: String, required: true}
+  }
 }, { timestamps: true });
 
+//We are hashing the password before we save it
 UserSchema.pre('save', async function(next) {
   if (!this.isModified('password')) return next();
   const salt = await bcrypt.genSalt(10);
@@ -14,6 +21,7 @@ UserSchema.pre('save', async function(next) {
   next();
 });
 
+//function to compare the passwords if they match
 UserSchema.methods.matchPassword = function(enteredPassword) {
   return bcrypt.compare(enteredPassword, this.password);
 };
