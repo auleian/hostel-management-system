@@ -39,6 +39,7 @@ export default function SearchPage() {
   }, [])
 
   const filteredHostels = useMemo(() => {
+    console.log("Current filters:", filters)
     return hostels.filter((hostel) => {
       // Search filter
       if (
@@ -65,13 +66,16 @@ export default function SearchPage() {
      }
 
       // Price range filter
-     /* if (
-        typeof hostel.price !== "number" ||
-      hostel.price < filters.priceRange.min ||
-      hostel.price > filters.priceRange.max
-      ) {
-        return false
-      }*/
+    if (hostel.priceRange) {
+      const hostelMinPrice = hostel.priceRange.min;
+      const hostelMaxPrice = hostel.priceRange.max;
+      
+      if (hostelMaxPrice < filters.priceRange.min || hostelMinPrice > filters.priceRange.max) {
+        console.log(`Hostel ${hostel.name} filtered out by price range`);
+        return false;
+      }
+    }
+ 
 
     // Amenities filter (skip if missing)
     if (filters.amenities.length > 0 && hostel.amenities) {

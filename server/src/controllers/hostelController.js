@@ -10,12 +10,18 @@ export const getHostels = async (req, res) => {
     if (name) {
       filter.name = { $regex: name, $options: 'i' }
     }
-    if (minPrice) {
-      filter.price = { ...filter.price, $gte: Number(minPrice) }
+    if (minPrice || maxPrice) {
+      filter.$and = [];
+      
+      if (minPrice) {
+        filter.$and.push({ "priceRange.max": { $gte: Number(minPrice) } });
+      }
+      
+      if (maxPrice) {
+        filter.$and.push({ "priceRange.min": { $lte: Number(maxPrice) } });
+      }
     }
-    if (maxPrice) {
-      filter.price = { ...filter.price, $lte: Number(maxPrice) }
-    }
+    /*console.log("Filter query:", JSON.stringify(filter, null, 2));*/
 
     const hostels = await Hostel.find(filter)
     res.json(hostels)
@@ -35,7 +41,10 @@ export const addHostel = async (req, res) => {
     amenities: req.body.amenities,
     genderPolicy: req.body.genderPolicy,
     contactInfo: req.body.contactInfo,
-    price: req.body.price
+    priceRange: {
+    min: req.body.priceRange?.min || req.body.price,
+    max: req.body.priceRange?.max || req.body.price
+  }
   })
 
   try {
@@ -74,9 +83,13 @@ export const updateHostel = async (req, res) => {
             res.hostel.contactInfo = req.body.contactInfo
         }
          if (req.body.priceRange != null) {
-            res.hostel.priceRange = req.body.priceRange
-        }
-        
+            if (req.body.priceRange.min != null) {
+              res.hostel.priceRange.min = req.body.priceRange.min;
+            }
+            if (req.body.priceRange.max != null) {
+              res.hostel.priceRange.max = req.body.priceRange.max;
+            }
+          }
         const updatedHostel = await res.hostel.save()
         res.json(updatedHostel)
     } catch (error) {
@@ -87,7 +100,7 @@ export const updateHostel = async (req, res) => {
 
 //function to get hostel by id
 export const getHostel = async (req, res, next) => {
-     try {
+  try {
     const { id } = req.params
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ message: 'Invalid hostel ID' })
@@ -97,8 +110,10 @@ export const getHostel = async (req, res, next) => {
       return res.status(404).json({ message: 'Hostel not found' })
     }
     res.json(hostel)
+    res.hostel = hostel
+    next()
   } catch (err) {
     res.status(500).json({ message: err.message })
   }
-  next()
+
 }

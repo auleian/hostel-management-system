@@ -28,7 +28,7 @@ export function SearchFilters({ onFilterChange }: SearchFiltersProps) {
     location: "",
     genderPolicy: "all",
     roomType: "all",
-    priceRange: { min: 0, max: 500000 },
+    priceRange: { min: 0, max: 2500000 },
     amenities: [],
     isSelfContained: null,
   })
@@ -126,23 +126,27 @@ export function SearchFilters({ onFilterChange }: SearchFiltersProps) {
           <div className="grid grid-cols-2 gap-2">
             <Input
               type="number"
+              inputMode="numeric"
               placeholder="Min"
-              value={filters.priceRange.min}
+              className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              value={filters.priceRange.min === 0 ? "" : filters.priceRange.min}
               onChange={(e) =>
                 handleFilterChange("priceRange", {
                   ...filters.priceRange,
-                  min: Number(e.target.value),
+                  min: e.target.value === "" ? 0 : Number(e.target.value),
                 })
               }
             />
             <Input
               type="number"
+              inputMode="numeric"            
               placeholder="Max"
-              value={filters.priceRange.max}
+              className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              value={filters.priceRange.max === 2500000 ? "" : filters.priceRange.max}
               onChange={(e) =>
                 handleFilterChange("priceRange", {
                   ...filters.priceRange,
-                  max: Number(e.target.value),
+                  max: e.target.value === "" ? 2500000 : Number(e.target.value),
                 })
               }
             />
@@ -171,21 +175,7 @@ export function SearchFilters({ onFilterChange }: SearchFiltersProps) {
           </div>
         </div>
 
-        {/* Self Contained */}
-        <div className="flex items-center space-x-2">
-          <Checkbox
-            id="selfContained"
-            checked={filters.isSelfContained === true}
-            onCheckedChange={(checked) => handleFilterChange("isSelfContained", checked ? true : null)}
-          />
-          <label
-            htmlFor="selfContained"
-            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-          >
-            Self-contained only
-          </label>
-        </div>
-
+      
         <Button
           variant="outline"
           className="w-full bg-transparent"
@@ -195,7 +185,7 @@ export function SearchFilters({ onFilterChange }: SearchFiltersProps) {
               location: "",
               genderPolicy: "all",
               roomType: "all",
-              priceRange: { min: 0, max: 500000 },
+              priceRange: { min: 0, max: 2500000 },
               amenities: [],
               isSelfContained: null,
             }

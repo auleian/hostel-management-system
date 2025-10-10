@@ -110,7 +110,7 @@ export function HostelCard({ hostelId }: HostelCardProps) {
         <div className="pt-2 border-t">
           <p className="text-sm text-muted-foreground">Price range</p>
           <p className="font-bold text-lg text-primary">
-            UGX {hostel.price?.toLocaleString()}
+            UGX {hostel.priceRange?.min.toLocaleString()} - {hostel.priceRange?.max.toLocaleString()}
             <span className="text-sm font-normal text-muted-foreground">/semester</span>
           </p>
         </div>
