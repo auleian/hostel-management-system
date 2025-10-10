@@ -1,13 +1,4 @@
 import jwt from 'jsonwebtoken';
-import bcrypt from "bcrypt";
-
-export const hashPassword = async (password) => {
-  return bcrypt.hash(password, 5);
-};
-
-export const comparePassword = async(password, hash) => {
-  return bcrypt.compare(password, hash);
-}
 
 export const protect = (req, res, next) => {
   // Try Authorization header first then cookie

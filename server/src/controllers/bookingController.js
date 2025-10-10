@@ -3,9 +3,9 @@ import Room from "../models/roomModel.js";
 
 export const createBooking = async (req, res) => {
   try {
-    const { username, email, phonenumber, checkInDate, room } = req.body;
+    const { checkInDate, room } = req.body;
 
-    if (!username || !email || !phonenumber || !checkInDate || !room) {
+    if (!checkInDate || !room) {
       return res.status(400).json({ message: "Missing required booking fields" });
     }
 
@@ -16,12 +16,10 @@ export const createBooking = async (req, res) => {
     }
 
     const booking = new Booking({
-      username,
-      email,
-      phonenumber,
       checkInDate: new Date(checkInDate),
       room,
       // bookedby can be set later when auth is integrated (req.user?._id)
+      bookedby: req.user?._id
     });
 
     await booking.save();
