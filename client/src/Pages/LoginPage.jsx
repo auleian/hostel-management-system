@@ -21,11 +21,11 @@ const LoginPage = () => {
 
     try {
       const res = await axios.post("/api/auth/login", formData, {
-        withCredentials: true, // if using cookies
+        withCredentials: true, 
       });
 
       setSuccess("Login successful!");
-      console.log(res.data); // token & user info
+      console.log(res.data); 
     } catch (err) {
       setError(err.response?.data?.msg || "Login failed");
     }
