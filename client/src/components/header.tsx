@@ -2,8 +2,6 @@
 import { useState } from "react"
 import { Link } from "react-router-dom"
 import { Building2, Menu, X } from "lucide-react"
-import { LoginDialog } from "./login-dialog"
-import { SignupDialog } from "./signup-dialog"
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -37,9 +35,20 @@ export function Header() {
           </nav>
 
           {/* Auth Buttons */}
-          <div className="hidden md:flex items-center gap-3">
-            <LoginDialog />
-            <SignupDialog />
+          <div className="ml-auto flex items-center gap-3">
+            <Link 
+              to="/login"
+              className="px-4 py-2 rounded-md bg-primary text-white hover:opacity-95"
+            > 
+              Login
+            </Link>
+
+            <Link
+              to="/register"
+              className="px-4 py-2 rounded-md border border-gray-200 hover:bg-gray-50"
+            >
+              Sign Up
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -82,8 +91,19 @@ export function Header() {
               </Link>
             </nav>
             <div className="flex flex-col gap-2 pt-4 border-t">
-              <LoginDialog />
-              <SignupDialog />
+              <Link
+                to="/login"
+                className="inline-block bg-primary text-white px-4 py-2 rounded-md hover:opacity-95"
+              >
+                Login
+              </Link>
+
+              <Link
+                to="/register"
+                className="inline-block bg-primary text-white px-4 py-2 rounded-md hover:opacity-95"
+              >
+                Sign Up
+              </Link>
             </div>
           </div>
         )}
