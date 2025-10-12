@@ -136,7 +136,7 @@ export default function HomePage() {
           ) : (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {featuredHostels.map((hostel:any) => (
-                <HostelCard key={hostel._id || hostel.id} hostel={hostel} />
+                <HostelCard key={hostel._id} hostelId={hostel._id} />
               ))}
             </div>
           )}

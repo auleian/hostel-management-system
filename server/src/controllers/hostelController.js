@@ -81,8 +81,9 @@ export const updateHostel = async (req, res) => {
         if (req.body.name != null) {
             res.hostel.name = req.body.name
         }
-        if (req.body.image != null) {
-            res.hostel.image = req.body.image
+        if (req.body.images != null) {
+            const images = Array.isArray(req.body.images) ? req.body.images : [req.body.images]
+            res.hostel.images = images
         }
         if (req.body.location != null) {
             res.hostel.location = req.body.location

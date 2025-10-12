@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { MapPin, Users, Wifi, Shield, Car, BookOpen, Bus } from "lucide-react"
 import type { Hostel } from "../lib/types"
 import axios from "axios"
+import { getImageUrl } from "@/lib/utils"
 
 const amenityIcons = {
   wifi: Wifi,
@@ -23,6 +24,8 @@ export function HostelCard({ hostelId }: HostelCardProps) {
   const [hostel, setHostel] = useState<Hostel | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
+
 
   useEffect(() => {
     if (!hostelId) {
@@ -34,7 +37,6 @@ export function HostelCard({ hostelId }: HostelCardProps) {
       setLoading(true)
       setError(null)
       try {
-        const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
         const res = await axios.get(`${apiBaseUrl}/hostels/${hostelId}`)
         // Map _id to id for frontend consistency
         const hostelData = res.data
@@ -70,17 +72,17 @@ export function HostelCard({ hostelId }: HostelCardProps) {
       </Card>
     )
   }
-  const resolvedmediaBaseURL = `${import.meta.env.VITE_API_BASE_URL?.split('api')[0]}media/`;
 
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
       <div className="relative h-48 w-full overflow-hidden">
-        <img
-          src={`${resolvedmediaBaseURL}${hostel.images?.[0]}` || "elegant-students-residence.jpg"}
-          alt={hostel.name}
-          onError={(e) => { (e.target as HTMLImageElement).src = "/luxury-hostel-suite.jpg" }}
-          className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 hover:scale-105"
-        />
+        {hostel.images?.[0] && (
+          <img
+            src={getImageUrl(hostel.images[0])}
+            alt={hostel.name}
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 hover:scale-105"
+          />
+        )}
         <div className="absolute top-3 right-3">
           <Badge className="bg-primary text-primary-foreground">{hostel.availableRooms} rooms available</Badge>
         </div>

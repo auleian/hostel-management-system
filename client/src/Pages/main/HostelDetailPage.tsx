@@ -3,8 +3,9 @@ import { Header } from "@/components/header"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { mockHostels, mockRooms } from "@/lib/mock-data"
 import { MapPin, Phone, Users, Wifi, Shield, Car, BookOpen, Bus, ArrowLeft, Bed } from "lucide-react"
+import { useState, useEffect } from "react"
+import { Hostel, Room } from "@/lib/types"
 
 const amenityIcons = {
   wifi: Wifi,
@@ -14,20 +15,88 @@ const amenityIcons = {
   "hostel shuttle": Bus,
 }
 
+
 export default function HostelDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const hostel = mockHostels.find((h) => h.id === id)
+  const [hostel, setHostel] = useState<Hostel | null>(null)
+  const [rooms, setRooms] = useState<Room[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
 
-  if (!hostel) {
+  useEffect(() => {
+    const fetchHostelData = async () => {
+      if (!id) return
+      
+      try {
+        setLoading(true)
+        setError(null)
+
+        // Fetch hostel details
+        const hostelResponse = await fetch(`${apiBaseUrl}/hostels/${id}`)
+        if (!hostelResponse.ok) {
+          throw new Error('Failed to fetch hostel details')
+        }
+        const hostelData = await hostelResponse.json()
+        setHostel(hostelData)
+
+        // Fetch rooms for this hostel
+        const roomsResponse = await fetch(`${apiBaseUrl}/rooms?hostel=${id}&isAvailable=true`)
+        if (!roomsResponse.ok) {
+          throw new Error('Failed to fetch rooms')
+        }
+        const roomsData = await roomsResponse.json()
+        setRooms(roomsData)
+
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchHostelData()
+  }, [id, apiBaseUrl])
+
+  // Helper function to get image URL
+  const getImageUrl = (imagePath: string) => {
+    const baseUrl = apiBaseUrl ?? "";
+    return `${baseUrl.replace('/api', '')}/media/hostels/${imagePath}`
+  }
+
+  const getRoomImageUrl = (imagePath: string) => {
+    const baseUrl = apiBaseUrl ?? "";
+    return `${baseUrl.replace('/api', '')}/media/rooms/${imagePath}`
+  }
+
+  if (loading) {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
         <main className="flex-1 py-16">
           <div className="container mx-auto px-4 text-center space-y-6">
-            <h1 className="text-3xl font-bold">Hostel Not Found</h1>
+            <div className="animate-pulse">
+              <div className="h-8 bg-gray-200 rounded w-1/2 mx-auto mb-4"></div>
+              <div className="h-4 bg-gray-200 rounded w-1/3 mx-auto"></div>
+            </div>
+          </div>
+        </main>
+      </div>
+    )
+  }
+
+  if (error || !hostel) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-1 py-16">
+          <div className="container mx-auto px-4 text-center space-y-6">
+            <h1 className="text-3xl font-bold">
+              {error ? 'Error Loading Hostel' : 'Hostel Not Found'}
+            </h1>
             <p className="text-muted-foreground max-w-md mx-auto">
-              The hostel you're looking for doesn't exist or may have been removed.
+              {error || "The hostel you're looking for doesn't exist or may have been removed."}
             </p>
             <div className="flex gap-4 justify-center">
               <Button onClick={() => navigate(-1)} variant="outline">Go Back</Button>
@@ -40,8 +109,6 @@ export default function HostelDetailPage() {
       </div>
     )
   }
-
-  const hostelRooms = mockRooms.filter((room) => room.hostelId === hostel.id)
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -59,7 +126,14 @@ export default function HostelDetailPage() {
           {/* Hostel Header */}
           <div className="grid lg:grid-cols-2 gap-8 mb-8">
             <div className="relative h-[400px] rounded-lg overflow-hidden">
-              <img src={hostel.image || "/placeholder.svg"} alt={hostel.name} className="h-full w-full object-cover" />
+              <img 
+                src={hostel.images && hostel.images.length > 0 
+                  ? getImageUrl(hostel.images[0]) 
+                  : hostel.image || "/placeholder.svg"
+                } 
+                alt={hostel.name} 
+                className="h-full w-full object-cover" 
+              />
             </div>
 
             <div className="space-y-6">
@@ -72,7 +146,9 @@ export default function HostelDetailPage() {
               </div>
 
               <div className="flex flex-wrap gap-2">
-                <Badge className="bg-primary text-primary-foreground">{hostel.availableRooms} rooms available</Badge>
+                <Badge className="bg-primary text-primary-foreground">
+                  {rooms.length} rooms available
+                </Badge>
                 <Badge variant="outline" className="capitalize">
                   <Users className="mr-1 h-3 w-3" />
                   {hostel.genderPolicy}
@@ -99,22 +175,17 @@ export default function HostelDetailPage() {
                 </div>
               </div>
 
-              <div>
-                <h3 className="font-semibold mb-2">Rules</h3>
-                <p className="text-sm text-muted-foreground text-pretty">{hostel.rules}</p>
-              </div>
-
-              <div className="flex items-center gap-2 text-sm">
-                <Phone className="h-4 w-4 text-primary" />
-                <span className="font-medium">Contact:</span>
-                <span className="text-muted-foreground">{hostel.contactInfo}</span>
-              </div>
-
               <div className="pt-4 border-t">
                 <p className="text-sm text-muted-foreground mb-1">Price range</p>
                 <p className="text-2xl font-bold text-primary">
-                  UGX {hostel.priceRange.min.toLocaleString()} - {hostel.priceRange.max.toLocaleString()}
-                  <span className="text-base font-normal text-muted-foreground">/semester</span>
+                  {hostel.priceRange ? (
+                    <>
+                      UGX {hostel.priceRange.min.toLocaleString()} - {hostel.priceRange.max.toLocaleString()}
+                      <span className="text-base font-normal text-muted-foreground">/semester</span>
+                    </>
+                  ) : (
+                    <span className="text-base text-muted-foreground">Price not available</span>
+                  )}
                 </p>
               </div>
             </div>
@@ -129,13 +200,16 @@ export default function HostelDetailPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {hostelRooms.length > 0 ? (
+              {rooms.length > 0 ? (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {hostelRooms.map((room) => (
-                    <Card key={room.id} className="overflow-hidden">
+                  {rooms.map((room) => (
+                    <Card key={room._id} className="overflow-hidden">
                       <div className="relative h-40 w-full">
                         <img
-                          src={room.image || "/placeholder.svg"}
+                          src={room.images && room.images.length > 0 
+                            ? getRoomImageUrl(room.images[0]) 
+                            : "/placeholder.svg"
+                          }
                           alt={`Room ${room.roomNumber}`}
                           className="h-full w-full object-cover"
                         />
@@ -158,7 +232,7 @@ export default function HostelDetailPage() {
                           </p>
                         </div>
                         <Button asChild className="w-full" size="sm">
-                          <Link to={`/booking/${room.id}`} className="no-underline">Book Now</Link>
+                          <Link to={`/booking/${room._id}`} className="no-underline">Book Now</Link>
                         </Button>
                       </CardContent>
                     </Card>
