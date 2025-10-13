@@ -26,22 +26,13 @@ export const getHostels = async (req, res) => {
     /*console.log("Filter query:", JSON.stringify(filter, null, 2));*/
 
     const hostels = await Hostel.find(filter)
-    const hostelsWithPriceRange = await Promise.all(hostels.map(async h => {
-      const hostel = h.toObject()
-      const rooms = await Room.find({ hostel: hostel._id })
-
-      if (rooms.length > 0) {
-        const prices = rooms.map(r => r.price)
-        hostel.priceRange = {
-          min: Math.min(...prices),
-          max: Math.max(...prices)
-        }
-      } else {
-        hostel.priceRange = { min: null, max: null }
-      }
-
-      return hostel
-    }))
+const hostelsWithPriceRange = hostels.map(h => {
+  const hostel = h.toObject();
+  return {
+    ...hostel,
+    priceRange: hostel.priceRange ?? { min: null, max: null },
+  };
+});
 
     res.json(hostelsWithPriceRange)
   } catch (error) {
@@ -51,11 +42,21 @@ export const getHostels = async (req, res) => {
 
 //function to create a new hostel
 export const addHostel = async (req, res) => {
-  const images = req.files ? req.files.map(file => file.filename) : [];
+  const uploadedImages = req.files?.length
+    ? req.files.map(file => file.filename)
+    : [];
+
+  let bodyImages = [];
+  if (!uploadedImages.length && req.body.images != null) {
+    bodyImages = Array.isArray(req.body.images)
+      ? req.body.images
+      : [req.body.images];
+  }
   const hostel = new Hostel({
     name: req.body.name,
-    images,
+    images:  [...uploadedImages, ...bodyImages],
     location: req.body.location,
+    availableRooms: req.body.availableRooms,
     description: req.body.description,
     rules: req.body.rules,
     amenities: req.body.amenities,
@@ -87,7 +88,10 @@ export const updateHostel = async (req, res) => {
         }
         if (req.body.location != null) {
             res.hostel.location = req.body.location
-        }   
+        }
+        if (req.body.availableRooms != null) {
+            res.hostel.availableRooms = req.body.availableRooms
+        }
         if (req.body.description != null) {
             res.hostel.description = req.body.description
         }
@@ -115,6 +119,16 @@ export const updateHostel = async (req, res) => {
         res.json(updatedHostel)
     } catch (error) {
         res.status(400).json({ message: error.message })
+    }
+}
+
+export const deleteHostel = async (req, res) => {
+    try {
+        await Hostel.findByIdAndDelete(req.params.id) // NEW: real delete
+        res.status(204).send()
+    } catch (error) {
+        console.error('Delete hostel failed:', error)
+        res.status(500).json({ message: 'Server error deleting hostel' })
     }
 }
 

@@ -15,6 +15,10 @@ const hostelSchema = new mongoose.Schema ({
         required: true,
 
     },
+    availableRooms: {
+        type: Number,
+        default: 0,
+    },
     description: {
         type: String,
         maxlength: 1000
