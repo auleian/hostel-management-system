@@ -6,14 +6,18 @@ const hostelSchema = new mongoose.Schema ({
         required: [true, 'Hostel name is required'],
         maxlength: [50, 'Hostel name can not be more than 100 characters ']
     },
-    image: {
-        type: String,
-        default: ''
+    images: {
+        type: [String],
+        default: []
     },
     location: {
         type: String,
         required: true,
 
+    },
+    availableRooms: {
+        type: Number,
+        default: 0,
     },
     description: {
         type: String,
@@ -32,14 +36,14 @@ const hostelSchema = new mongoose.Schema ({
         enum: ['male', 'female', 'mixed'],
         default : 'mixed'
     },
+    priceRange: {
+        min: Number,
+        max: Number,
+    },
     contactInfo: {
         type: String,
     },
-    price: {
-        type: Number,
-        required: true
-    }
-
+    
 })
 
 const Hostel = mongoose.model('Hostel', hostelSchema);

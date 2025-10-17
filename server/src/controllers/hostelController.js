@@ -1,5 +1,7 @@
-import express from "express"
 import Hostel from '../models/hostelModel.js'
+import mongoose from 'mongoose'
+import Room from '../models/roomModel.js'
+
 
 //get all hostels
 export const getHostels = async (req, res) => {
@@ -10,15 +12,29 @@ export const getHostels = async (req, res) => {
     if (name) {
       filter.name = { $regex: name, $options: 'i' }
     }
-    if (minPrice) {
-      filter.price = { ...filter.price, $gte: Number(minPrice) }
+    if (minPrice || maxPrice) {
+      filter.$and = [];
+      
+      if (minPrice) {
+        filter.$and.push({ "priceRange.max": { $gte: Number(minPrice) } });
+      }
+      
+      if (maxPrice) {
+        filter.$and.push({ "priceRange.min": { $lte: Number(maxPrice) } });
+      }
     }
-    if (maxPrice) {
-      filter.price = { ...filter.price, $lte: Number(maxPrice) }
-    }
+    /*console.log("Filter query:", JSON.stringify(filter, null, 2));*/
 
     const hostels = await Hostel.find(filter)
-    res.json(hostels)
+const hostelsWithPriceRange = hostels.map(h => {
+  const hostel = h.toObject();
+  return {
+    ...hostel,
+    priceRange: hostel.priceRange ?? { min: null, max: null },
+  };
+});
+
+    res.json(hostelsWithPriceRange)
   } catch (error) {
     res.status(500).json({ message: error.message })
   }
@@ -26,16 +42,30 @@ export const getHostels = async (req, res) => {
 
 //function to create a new hostel
 export const addHostel = async (req, res) => {
+  const uploadedImages = req.files?.length
+    ? req.files.map(file => file.filename)
+    : [];
+
+  let bodyImages = [];
+  if (!uploadedImages.length && req.body.images != null) {
+    bodyImages = Array.isArray(req.body.images)
+      ? req.body.images
+      : [req.body.images];
+  }
   const hostel = new Hostel({
     name: req.body.name,
-    image: req.body.image,
+    images:  [...uploadedImages, ...bodyImages],
     location: req.body.location,
+    availableRooms: req.body.availableRooms,
     description: req.body.description,
     rules: req.body.rules,
     amenities: req.body.amenities,
     genderPolicy: req.body.genderPolicy,
     contactInfo: req.body.contactInfo,
-    price: req.body.price
+    priceRange: {
+    min: req.body.priceRange?.min || req.body.price,
+    max: req.body.priceRange?.max || req.body.price
+  }
   })
 
   try {
@@ -52,12 +82,16 @@ export const updateHostel = async (req, res) => {
         if (req.body.name != null) {
             res.hostel.name = req.body.name
         }
-        if (req.body.image != null) {
-            res.hostel.image = req.body.image
+        if (req.body.images != null) {
+            const images = Array.isArray(req.body.images) ? req.body.images : [req.body.images]
+            res.hostel.images = images
         }
         if (req.body.location != null) {
             res.hostel.location = req.body.location
-        }   
+        }
+        if (req.body.availableRooms != null) {
+            res.hostel.availableRooms = req.body.availableRooms
+        }
         if (req.body.description != null) {
             res.hostel.description = req.body.description
         }
@@ -73,10 +107,14 @@ export const updateHostel = async (req, res) => {
         if (req.body.contactInfo != null) {
             res.hostel.contactInfo = req.body.contactInfo
         }
-        if (req.body.price != null) {
-            res.hostel.price = req.body.price
-        }
-        
+         if (req.body.priceRange != null) {
+            if (req.body.priceRange.min != null) {
+              res.hostel.priceRange.min = req.body.priceRange.min;
+            }
+            if (req.body.priceRange.max != null) {
+              res.hostel.priceRange.max = req.body.priceRange.max;
+            }
+          }
         const updatedHostel = await res.hostel.save()
         res.json(updatedHostel)
     } catch (error) {
@@ -84,18 +122,33 @@ export const updateHostel = async (req, res) => {
     }
 }
 
+export const deleteHostel = async (req, res) => {
+    try {
+        await Hostel.findByIdAndDelete(req.params.id) // NEW: real delete
+        res.status(204).send()
+    } catch (error) {
+        console.error('Delete hostel failed:', error)
+        res.status(500).json({ message: 'Server error deleting hostel' })
+    }
+}
+
 
 //function to get hostel by id
 export const getHostel = async (req, res, next) => {
-    let hostel 
-    try {
-        hostel = await Hostel.findById(req.params.id)
-        if (hostel === null) {
-            return res.status(404).json({ message: 'Hostel not found' })
-        }
-    }catch (error) {
-        return res.status(500).json({ message: error.message }) 
+  try {
+    const { id } = req.params
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: 'Invalid hostel ID' })
     }
+    const hostel = await Hostel.findById(id)
+    if (!hostel) {
+      return res.status(404).json({ message: 'Hostel not found' })
+    }
+    res.json(hostel)
     res.hostel = hostel
     next()
+  } catch (err) {
+    res.status(500).json({ message: err.message })
+  }
+
 }

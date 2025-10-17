@@ -1,11 +1,12 @@
-const jwt = require('jsonwebtoken');
-const { validationResult } = require('express-validator');
-const User = require('/models/User');
+import jwt from 'jsonwebtoken';
+import { validationResult } from 'express-validator';
+import User from "../models/User.js";
+
 
 const generateToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
-exports.register = async (req, res) => {
+export const register = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
 
@@ -20,7 +21,6 @@ exports.register = async (req, res) => {
     const token = generateToken(user._id);
 
     // Option A: Return token in response body
-    // Option B: Set token as httpOnly cookie (safer vs XSS)
     // Here: we'll return token and also set httpOnly cookie (optional)
     res.cookie('token', token, {
       httpOnly: true,
@@ -39,7 +39,7 @@ exports.register = async (req, res) => {
   }
 };
 
-exports.login = async (req, res) => {
+export const login = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
 
@@ -52,7 +52,7 @@ exports.login = async (req, res) => {
     if (!isMatch) return res.status(400).json({ msg: 'Invalid credentials' });
 
     const token = generateToken(user._id);
-    res.cookie('token', token, {
+    res.cookie('token', token, { 
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',

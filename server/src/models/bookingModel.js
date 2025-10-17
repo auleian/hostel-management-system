@@ -1,34 +1,29 @@
 import mongoose from "mongoose";
 
 const bookingSchema = new mongoose.Schema({
-    username: {
-        type: String,
-        trim: true,
+    room: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Room",
         required: true
     },
-    email: {
-        type: String,
-        required: true,
-        trim: true
-    },
-    phonenumber: {
-        type: String,
-        required: true,
-        unique: true
-    },
-     hostel: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Hostel",
-      required: true
-    },
-    roomType: {
-      type: String,
-      required: true,
-      enum: ["single", "double", "dorm"] // example room types
-    },
+    
     checkInDate: {
         type: Date,
         required: true
+    },
+
+    checkOutDate: {
+        type: Date,
+    },
+
+    bookedby: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        // Made optional to allow guest bookings until auth is integrated
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
     }
 });
 
