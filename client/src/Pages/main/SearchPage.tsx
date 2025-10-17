@@ -13,7 +13,7 @@ export default function SearchPage() {
     location: "",
     genderPolicy: "all",
     roomType: "all",
-    priceRange: { min: 0, max: 500000 },
+    priceRange: { min: null, max: null },
     amenities: [],
     isSelfContained: null,
   })
@@ -66,15 +66,18 @@ export default function SearchPage() {
      }
 
       // Price range filter
-    if (hostel.priceRange) {
-      const hostelMinPrice = hostel.priceRange.min;
-      const hostelMaxPrice = hostel.priceRange.max;
-      
-      if (hostelMaxPrice < filters.priceRange.min || hostelMinPrice > filters.priceRange.max) {
-        console.log(`Hostel ${hostel.name} filtered out by price range`);
-        return false;
+      const filterMin = filters.priceRange?.min ?? null
+      const filterMax = filters.priceRange?.max ?? null
+      const hostelMinPrice = hostel.priceRange?.min ?? null
+      const hostelMaxPrice = hostel.priceRange?.max ?? null
+
+      if (
+        (filterMin != null && (hostelMinPrice == null || hostelMinPrice < filterMin)) ||
+        (filterMax != null && (hostelMaxPrice == null || hostelMaxPrice > filterMax))
+      ) {
+        console.log(`Hostel ${hostel.name} filtered out by price range`)
+        return false
       }
-    }
  
 
     // Amenities filter (skip if missing)
