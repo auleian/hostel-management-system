@@ -1,7 +1,13 @@
-import jwt from "jsonwebtoken";
-import User from "../models/User.js";
+import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || "change_this";
+export const protect = (req, res, next) => {
+  // Try Authorization header first then cookie
+  const authHeader = req.header('Authorization') || req.headers['authorization'];
+  let token;
+  if (authHeader && authHeader.startsWith('Bearer ')) token = authHeader.split(' ')[1];
+  else if (req.cookies && req.cookies.token) token = req.cookies.token;
+
+  if (!token) return res.status(401).json({ msg: 'No token, authorization denied' });
 
 export default async function auth(req, res, next) {
   try {

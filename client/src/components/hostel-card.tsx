@@ -1,9 +1,12 @@
+import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { MapPin, Users, Wifi, Shield, Car, BookOpen, Bus } from "lucide-react"
 import type { Hostel } from "../lib/types"
+import axios from "axios"
+import { getImageUrl } from "@/lib/utils"
 
 const amenityIcons = {
   wifi: Wifi,
@@ -14,21 +17,72 @@ const amenityIcons = {
 }
 
 interface HostelCardProps {
-  hostel: Hostel
+  hostelId: string
 }
 
-export function HostelCard({ hostel }: HostelCardProps) {
-  const resolvedmediaBaseURL = `${import.meta.env.VITE_API_BASE_URL?.split('api')[0]}media/`;
+export function HostelCard({ hostelId }: HostelCardProps) {
+  const [hostel, setHostel] = useState<Hostel | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
+
+
+  useEffect(() => {
+    if (!hostelId) {
+      setError("No hostel ID provided.")
+      setLoading(false)
+      return
+    }
+    async function fetchHostel() {
+      setLoading(true)
+      setError(null)
+      try {
+        const res = await axios.get(`${apiBaseUrl}/hostels/${hostelId}`)
+        // Map _id to id for frontend consistency
+        const hostelData = res.data
+        setHostel({
+          ...hostelData,
+          id: hostelData._id,
+        })
+      } catch (err) {
+        setError("Failed to load hostel.")
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchHostel()
+  }, [hostelId])
+
+  if (loading) {
+    return (
+      <Card className="overflow-hidden">
+        <CardContent className="p-4">
+          <p>Loading...</p>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  if (error || !hostel) {
+    return (
+      <Card className="overflow-hidden">
+        <CardContent className="p-4">
+          <p className="text-red-500">{error || "Hostel not found."}</p>
+        </CardContent>
+      </Card>
+    )
+  }
 
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
       <div className="relative h-48 w-full overflow-hidden">
-        <img
-          src={`${resolvedmediaBaseURL}${hostel.images?.[0]}` || "luxury-hostel-suite.jpg"}
-          alt={hostel.name}
-          onError={(e) => { (e.target as HTMLImageElement).src = "/luxury-hostel-suite.jpg" }}
-          className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 hover:scale-105"
-        />
+        {hostel.images?.[0] && (
+          <img
+            src={getImageUrl(hostel.images[0])}
+            alt={hostel.name}
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 hover:scale-105"
+          />
+        )}
         <div className="absolute top-3 right-3">
           <Badge className="bg-primary text-primary-foreground">{hostel.availableRooms} rooms available</Badge>
         </div>

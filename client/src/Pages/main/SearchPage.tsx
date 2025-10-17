@@ -1,10 +1,11 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { Header } from "@/components/header"
 import { HostelCard } from "@/components/hostel-card"
 import { SearchFilters, type FilterState } from "@/components/search-filters"
-import { mockHostels } from "@/lib/mock-data"
+//import { mockHostels } from "@/lib/mock-data"
+import axios from "axios"
 
 export default function SearchPage() {
   const [filters, setFilters] = useState<FilterState>({
@@ -12,46 +13,91 @@ export default function SearchPage() {
     location: "",
     genderPolicy: "all",
     roomType: "all",
-    priceRange: { min: 0, max: 500000 },
+    priceRange: { min: null, max: null },
     amenities: [],
     isSelfContained: null,
   })
 
+  const [hostels, setHostels] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    async function fetchHostels() {
+      setLoading(true)
+      setError(null)
+      try {
+        const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
+        const res = await axios.get(`${apiBaseUrl}/hostels`)
+        console.log("Fetched hostels:", res.data)
+        setHostels(res.data)
+      } catch (error) {
+        setError("Failed to load hostels.")
+      } 
+    }
+    fetchHostels()
+  }, [])
+
   const filteredHostels = useMemo(() => {
-    return mockHostels.filter((hostel) => {
+    console.log("Current filters:", filters)
+    return hostels.filter((hostel) => {
       // Search filter
       if (
         filters.search &&
-        !hostel.name.toLowerCase().includes(filters.search.toLowerCase()) &&
-        !hostel.location.toLowerCase().includes(filters.search.toLowerCase())
+        !hostel.name?.toLowerCase().includes(filters.search.toLowerCase()) &&
+        !hostel.location?.toLowerCase().includes(filters.search.toLowerCase())
+        
       ) {
         return false
       }
 
       // Location filter
-      if (filters.location && filters.location !== "all" && !hostel.location.toLowerCase().includes(filters.location)) {
+      if (filters.location && 
+        filters.location !== "all" && 
+        !hostel.location?.toLowerCase().includes(filters.location)) {
         return false
       }
 
       // Gender policy filter
-      if (filters.genderPolicy !== "all" && hostel.genderPolicy !== filters.genderPolicy) {
-        return false
-      }
+      if (filters.genderPolicy !== "all" &&
+         hostel.genderPolicy && 
+         hostel.genderPolicy !== filters.genderPolicy) {
+      return false;
+     }
 
       // Price range filter
-      if (hostel.priceRange.min > filters.priceRange.max || hostel.priceRange.max < filters.priceRange.min) {
+      const filterMin = filters.priceRange?.min ?? null
+      const filterMax = filters.priceRange?.max ?? null
+      const hostelMinPrice = hostel.priceRange?.min ?? null
+      const hostelMaxPrice = hostel.priceRange?.max ?? null
+
+      if (
+        (filterMin != null && (hostelMinPrice == null || hostelMinPrice < filterMin)) ||
+        (filterMax != null && (hostelMaxPrice == null || hostelMaxPrice > filterMax))
+      ) {
+        console.log(`Hostel ${hostel.name} filtered out by price range`)
         return false
       }
+ 
 
-      // Amenities filter
-      if (filters.amenities.length > 0) {
-        const hasAllAmenities = filters.amenities.every((amenity) => hostel.amenities.includes(amenity))
-        if (!hasAllAmenities) return false
-      }
+    // Amenities filter (skip if missing)
+    if (filters.amenities.length > 0 && hostel.amenities) {
+      const hasAllAmenities = filters.amenities.every((amenity) => hostel.amenities.includes(amenity));
+      if (!hasAllAmenities) return false;
+
+      // Self-contained filter
+    if (
+      filters.isSelfContained === true &&
+      hostel.isSelfContained !== true
+    ) {
+      return false
+    }
+    }
 
       return true
     })
-  }, [filters])
+  }, [filters, hostels])
+  console.log("Filtered hostels:", filteredHostels)
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -81,7 +127,7 @@ export default function SearchPage() {
               {filteredHostels.length > 0 ? (
                 <div className="grid sm:grid-cols-2 gap-6">
                   {filteredHostels.map((hostel) => (
-                    <HostelCard key={hostel.id} hostel={hostel} />
+                    <HostelCard key={hostel._id} hostelId={hostel._id} />
                   ))}
                 </div>
               ) : (

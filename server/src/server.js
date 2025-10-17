@@ -2,7 +2,9 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import config from "./config/database.js";
+import { protect } from "./middleware/auth.js";
 
+import authRoutes from "./Routes/auth.js";
 import bookingRoutes from "./routes/bookingRoutes.js";
 import hostelRoutes from "./routes/hostelRoutes.js";
 import roomRoutes from "./routes/roomRoutes.js";
@@ -38,9 +40,11 @@ connectDB();
 
 // Routes
 app.use("/api/auth", authRoutes);
-app.use("/api/bookings", bookingRoutes);
+app.use("/api/bookings", protect, bookingRoutes);
 app.use("/api/hostels", hostelRoutes);
 app.use("/api/rooms", roomRoutes);
+
+
 
 // 404 handler
 app.use((req, res) => {

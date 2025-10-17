@@ -15,6 +15,10 @@ const hostelSchema = new mongoose.Schema ({
         required: true,
 
     },
+    availableRooms: {
+        type: Number,
+        default: 0,
+    },
     description: {
         type: String,
         maxlength: 1000
@@ -31,6 +35,10 @@ const hostelSchema = new mongoose.Schema ({
         type: String,
         enum: ['male', 'female', 'mixed'],
         default : 'mixed'
+    },
+    priceRange: {
+        min: Number,
+        max: Number,
     },
     contactInfo: {
         type: String,

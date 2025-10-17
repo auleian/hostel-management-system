@@ -8,10 +8,8 @@ export interface Hostel {
   availableRooms: number
   genderPolicy: "male" | "female" | "mixed"
   amenities: string[]
-  priceRange: {
-    min: number
-    max: number
-  }
+  //price?: number
+  priceRange?: { min: number; max: number }
 }
 
 export interface Room {
@@ -21,6 +19,14 @@ export interface Room {
   price: number
   isAvailable: boolean
   amenities: string[]
+  images?: string[]
+  roomNumber: string
+  isSelfContained: boolean
+  createdAt?: string
+  createdBy?: string
+  hostel: string
+  moreInfo: string
+  roomType: "single" | "double" | "suite"
 }
 
 export interface User {
