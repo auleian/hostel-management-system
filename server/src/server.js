@@ -4,6 +4,7 @@ import cors from "cors";
 import config from "./config/database.js";
 import { protect } from "./middleware/auth.js";
 
+import authRoutes from "./Routes/auth.js";
 import bookingRoutes from "./routes/bookingRoutes.js";
 import hostelRoutes from "./routes/hostelRoutes.js";
 import roomRoutes from "./routes/roomRoutes.js";

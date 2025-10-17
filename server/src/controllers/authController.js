@@ -10,12 +10,12 @@ export const register = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
 
-  const { name, email, password } = req.body;
+  const { name, email, password, university, contact, nextOfKin } = req.body;
   try {
     let user = await User.findOne({ email });
     if (user) return res.status(400).json({ msg: 'User already exists' });
 
-    user = new User({ name, email, password });
+    user = new User({ name, email, password, university, contact, nextOfKin });
     await user.save();
 
     const token = generateToken(user._id);
@@ -31,7 +31,7 @@ export const register = async (req, res) => {
 
     res.status(201).json({
       token,
-      user: { id: user._id, name: user.name, email: user.email }
+      user: { id: user._id, name: user.name, email: user.email, university: user.university, contact: user.contact, nextOfKin: user.nextOfKin }
     });
   } catch (err) {
     console.error(err);
