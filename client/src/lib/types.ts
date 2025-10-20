@@ -10,6 +10,8 @@ export interface Hostel {
   amenities: string[]
   //price?: number
   priceRange?: { min: number; max: number }
+  contactInfo?: string
+  rules?: string
 }
 
 export interface Room {

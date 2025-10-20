@@ -5,20 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import {AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle} from "@/components/ui/alert-dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { cn, getImageUrl } from "@/lib/utils";
+import { getImageUrl } from "@/lib/utils";
 import { Hostel } from "@/lib/types";
-
-// Add only the form-specific fields that aren't in the Hostel type
-// Use `newImages` for File[] so it doesn't conflict with Hostel.images (string[])
-type FormFields = {
-  newImages: File[];
-  existingImages?: string[];
-  rules: string;
-  contactInfo: string;
-}
 
 const EditHostel = () => {
   const { id } = useParams<{ id: string }>();
@@ -27,7 +19,9 @@ const EditHostel = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([]);
-  const [hostelData, setHostelData] = useState<Hostel & FormFields>({
+  const [newImageFiles, setNewImageFiles] = useState<File[]>([]);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [hostelData, setHostelData] = useState<Hostel>({
     _id: '',
     name: '',
     description: '',
@@ -40,21 +34,23 @@ const EditHostel = () => {
       min: 0,
       max: 0
     },
-    // newImages holds File objects for uploads; Hostel.images remains string[] for existing urls
-    newImages: [],
-    amenities: [],
-    existingImages: []
+    images: [],
+    amenities: []
   });
 
-  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3100'
   
   // Fetch hostel details when component mounts
   useEffect(() => {
     const fetchHostelDetails = async () => {
       try {
         setLoading(true);
-        console.log('Fetching from URL:', `${apiBaseUrl}/hostels/${id}`);
-        const response = await axios.get(`${apiBaseUrl}/hostels/${id}`);
+        const url = apiBaseUrl.includes('/api') 
+          ? `${apiBaseUrl}/hostels/${id}`
+          : `${apiBaseUrl}/api/hostels/${id}`;
+        
+        console.log('Fetching from URL:', url);
+        const response = await axios.get(url);
         const hostel = response.data;
         
         setHostelData({
@@ -62,8 +58,6 @@ const EditHostel = () => {
           rules: hostel.rules || '',
           contactInfo: hostel.contactInfo || '',
           priceRange: hostel.priceRange || { min: 0, max: 0 },
-          newImages: [], // For new file uploads
-          existingImages: hostel.images || [],
           amenities: hostel.amenities || []
         });
         
@@ -96,19 +90,17 @@ const EditHostel = () => {
     const { name, value } = e.target;
     
     if (name === 'minPrice') {
-      setHostelData(prev => ({
-        ...prev,
+      setHostelData(prev => ({...prev,
         priceRange: {
-          ...prev.priceRange,
-          min: parseFloat(value) || 0
+          min: value === '' ? 0 : parseFloat(value) || 0,
+          max: prev.priceRange?.max ?? 0
         }
       }));
     } else if (name === 'maxPrice') {
-      setHostelData(prev => ({
-        ...prev,
+      setHostelData(prev => ({...prev,
         priceRange: {
-          ...prev.priceRange,
-          max: parseFloat(value) || 0
+          min: prev.priceRange?.min ?? 0,
+          max: value === '' ? 0 : parseFloat(value) || 0
         }
       }));
     } else if (name === 'availableRooms') {
@@ -144,11 +136,8 @@ const EditHostel = () => {
     if (e.target.files) {
       const filesArray = Array.from(e.target.files);
       
-      // Update form data with new files
-      setHostelData(prev => ({
-        ...prev,
-        newImages: [...(prev.newImages || []), ...filesArray]
-      }));
+      // Update new image files array
+      setNewImageFiles(prev => [...prev, ...filesArray]);
       
       // Create preview URLs for new images
       const newImagePreviews = filesArray.map(file => URL.createObjectURL(file));
@@ -158,28 +147,25 @@ const EditHostel = () => {
   
   const removeImage = (index: number) => {
     // Check if it's an existing image or a new one
-    const existingCount = hostelData.existingImages?.length || 0;
+    const existingCount = hostelData.images?.length || 0;
     const isExistingImage = index < existingCount;
     
     if (isExistingImage) {
       // Remove from existing images
-      const updatedExistingImages = [...(hostelData.existingImages || [])];
-      updatedExistingImages.splice(index, 1);
+      const updatedImages = [...(hostelData.images || [])];
+      updatedImages.splice(index, 1);
       
       setHostelData(prev => ({
         ...prev,
-        existingImages: updatedExistingImages
+        images: updatedImages
       }));
     } else {
       // Adjust index for new images array
       const newImagesIndex = index - existingCount;
-      const updatedNewImages = [...(hostelData.newImages || [])];
-      updatedNewImages.splice(newImagesIndex, 1);
+      const updatedNewImageFiles = [...newImageFiles];
+      updatedNewImageFiles.splice(newImagesIndex, 1);
       
-      setHostelData(prev => ({
-        ...prev,
-        newImages: updatedNewImages
-      }));
+      setNewImageFiles(updatedNewImageFiles);
     }
     
     // Update preview URLs
@@ -200,50 +186,53 @@ const EditHostel = () => {
       formData.append('description', hostelData.description);
       formData.append('location', hostelData.location);
       formData.append('genderPolicy', hostelData.genderPolicy);
-      formData.append('rules', hostelData.rules);
+      formData.append('rules', hostelData.rules || '');
       formData.append('availableRooms', hostelData.availableRooms.toString());
-      formData.append('contactInfo', hostelData.contactInfo);
+      formData.append('contactInfo', hostelData.contactInfo || '');
       
       // Add price range
-      formData.append('priceRange[min]', hostelData.priceRange.min.toString());
-      formData.append('priceRange[max]', hostelData.priceRange.max.toString());
+      formData.append('priceRange[min]', (hostelData.priceRange?.min || 0).toString());
+      formData.append('priceRange[max]', (hostelData.priceRange?.max || 0).toString());
       
       // Add amenities
       formData.append('amenities', JSON.stringify(hostelData.amenities));
       
       // Add existing images that weren't removed
-      if (hostelData.existingImages && hostelData.existingImages.length) {
-        formData.append('existingImages', JSON.stringify(hostelData.existingImages));
+      if (hostelData.images && hostelData.images.length) {
+        formData.append('existingImages', JSON.stringify(hostelData.images));
       }
       
       // Add new images (files)
-      (hostelData.newImages || []).forEach(image => {
+      newImageFiles.forEach(image => {
         formData.append('images', image);
       });
 
-    const url = apiBaseUrl.includes('/api') 
-      ? `${apiBaseUrl}/hostels/${id}`
-      : `${apiBaseUrl}/api/hostels/${id}`;
-    
-    console.log('Updating hostel at URL:', url);
-    await axios.patch(url, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    });
+      const url = apiBaseUrl.includes('/api') 
+        ? `${apiBaseUrl}/hostels/${id}`
+        : `${apiBaseUrl}/api/hostels/${id}`;
+      
+      console.log('Updating hostel at URL:', url);
+      
+      await axios.patch(url, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        },
+        timeout: 30000 // 30 seconds timeout
+      });
 
       toast({
         title: "Success",
         description: "Hostel updated successfully!",
+        duration: 5000,
       });
-      
-      navigate('/dashboard/admin/manage-hostels');
+        setShowSuccess(true);
+
     } catch (error) {
       console.error("Error updating hostel:", error);
-          if (axios.isAxiosError(error)) {
-      console.error("API Response:", error.response?.data);
-      console.error("Status code:", error.response?.status);
-    }
+      if (axios.isAxiosError(error)) {
+        console.error("API Response:", error.response?.data);
+        console.error("Status code:", error.response?.status);
+      }
       toast({
         title: "Error",
         description: "Failed to update hostel. Please try again.",
@@ -270,7 +259,6 @@ const EditHostel = () => {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Form fields remain the same as before */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="name">Hostel Name</Label>
@@ -326,7 +314,7 @@ const EditHostel = () => {
                   id="minPrice"
                   name="minPrice"
                   type="number"
-                  value={hostelData.priceRange.min}
+                  value={hostelData.priceRange?.min === 0 ? '' : hostelData.priceRange?.min || ''}
                   onChange={handleInputChange}
                   placeholder="Minimum price"
                   min="0"
@@ -339,7 +327,7 @@ const EditHostel = () => {
                   id="maxPrice"
                   name="maxPrice"
                   type="number"
-                  value={hostelData.priceRange.max}
+                  value={hostelData.priceRange?.max === 0 ? '' : hostelData.priceRange?.max || ''}
                   onChange={handleInputChange}
                   placeholder="Maximum price"
                   min="0"
@@ -443,9 +431,9 @@ const EditHostel = () => {
               <Button 
                 type="button" 
                 variant="outline" 
-                onClick={() => navigate('/dashboard/admin/manage-hostels')}
+                onClick={() => navigate('/admin/hostels')}
               >
-                Cancel
+                Back to Hostels
               </Button>
               <Button type="submit" disabled={submitting}>
                 {submitting ? 'Updating...' : 'Update Hostel'}
@@ -454,6 +442,29 @@ const EditHostel = () => {
           </form>
         </CardContent>
       </Card>
+      {/* Success Dialog */}
+<AlertDialog open={showSuccess} onOpenChange={setShowSuccess}>
+  <AlertDialogContent>
+    <AlertDialogHeader>
+      <AlertDialogTitle>Hostel Updated Successfully!</AlertDialogTitle>
+      <AlertDialogDescription>
+        Your changes have been saved. The hostel information has been updated.
+      </AlertDialogDescription>
+    </AlertDialogHeader>
+    <AlertDialogFooter>
+      <AlertDialogAction asChild>
+        <Button onClick={() => navigate('/admin/hostels')}>
+          Back to Hostels
+        </Button>
+      </AlertDialogAction>
+      <AlertDialogAction asChild>
+        <Button variant="outline" onClick={() => setShowSuccess(false)}>
+          Continue Editing
+        </Button>
+      </AlertDialogAction>
+    </AlertDialogFooter>
+  </AlertDialogContent>
+</AlertDialog>
     </div>
   );
 };
