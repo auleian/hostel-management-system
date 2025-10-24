@@ -28,7 +28,7 @@ export default function HostelsPage() {
         setLoading(true)
         setError(null)
 
-        const url = new URL(`${apiBaseUrl}/hostels`, window.location.origin)
+        const url = new URL(`${apiBaseUrl}/hostels?_t=${Date.now()}`, window.location.origin)
         if (query) url.searchParams.set("name", query)
 
         const res = await fetch(url.toString(), {
@@ -178,7 +178,7 @@ export default function HostelsPage() {
                     {hostel.priceRange?.min != null && hostel.priceRange?.max != null ? (
                       <>
                         UGX {(hostel.priceRange.min / 1000).toFixed(0)}K -{" "}
-                        {(hostel.priceRange.max / 1000).toFixed(0)}K
+                        {(hostel.priceRange.max / 1000000).toFixed(1)}M
                       </>
                     ) : (
                       <span>Price not available</span>

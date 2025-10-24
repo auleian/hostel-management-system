@@ -78,48 +78,76 @@ export const addHostel = async (req, res) => {
 
 //function to update a hostel
 export const updateHostel = async (req, res) => {
-    try {
-        if (req.body.name != null) {
-            res.hostel.name = req.body.name
-        }
-        if (req.body.images != null) {
-            const images = Array.isArray(req.body.images) ? req.body.images : [req.body.images]
-            res.hostel.images = images
-        }
-        if (req.body.location != null) {
-            res.hostel.location = req.body.location
-        }
-        if (req.body.availableRooms != null) {
-            res.hostel.availableRooms = req.body.availableRooms
-        }
-        if (req.body.description != null) {
-            res.hostel.description = req.body.description
-        }
-        if (req.body.rules != null) {
-            res.hostel.rules = req.body.rules
-        }
-        if (req.body.amenities != null) {
-            res.hostel.amenities = req.body.amenities
-        }
-        if (req.body.genderPolicy != null) {
-            res.hostel.genderPolicy = req.body.genderPolicy
-        }
-        if (req.body.contactInfo != null) {
-            res.hostel.contactInfo = req.body.contactInfo
-        }
-         if (req.body.priceRange != null) {
-            if (req.body.priceRange.min != null) {
-              res.hostel.priceRange.min = req.body.priceRange.min;
-            }
-            if (req.body.priceRange.max != null) {
-              res.hostel.priceRange.max = req.body.priceRange.max;
-            }
-          }
-        const updatedHostel = await res.hostel.save()
-        res.json(updatedHostel)
-    } catch (error) {
-        res.status(400).json({ message: error.message })
+  try {
+    // Merge images: keep existingImages from body + add any newly uploaded files
+    const uploadedImages = req.files?.length ? req.files.map(f => f.filename) : [];
+
+    let existingImages = [];
+    if (req.body.existingImages) {
+      try {
+        existingImages = JSON.parse(req.body.existingImages);
+      } catch {
+        existingImages = Array.isArray(req.body.existingImages)
+          ? req.body.existingImages
+          : [req.body.existingImages];
+      }
     }
+
+    if (req.body.name != null) {
+      res.hostel.name = req.body.name;
+    }
+    if (req.body.location != null) {
+      res.hostel.location = req.body.location;
+    }
+    if (req.body.availableRooms != null) {
+      const rooms = Number(req.body.availableRooms);
+      res.hostel.availableRooms = Number.isNaN(rooms) ? 0 : rooms;
+    }
+    if (req.body.description != null) {
+      res.hostel.description = req.body.description;
+    }
+    if (req.body.rules != null) {
+      res.hostel.rules = req.body.rules;
+    }
+    if (req.body.amenities != null) {
+      const amenities = typeof req.body.amenities === 'string'
+        ? (() => { try { return JSON.parse(req.body.amenities); } catch { return [req.body.amenities]; } })()
+        : req.body.amenities;
+      res.hostel.amenities = amenities;
+    }
+    if (req.body.genderPolicy != null) {
+      res.hostel.genderPolicy = req.body.genderPolicy;
+    }
+    if (req.body.contactInfo != null) {
+      res.hostel.contactInfo = req.body.contactInfo;
+    }
+    // priceRange may come as priceRange[min] and priceRange[max] or JSON string
+    if (req.body['priceRange[min]'] != null || req.body['priceRange[max]'] != null) {
+      const min = req.body['priceRange[min]'];
+      const max = req.body['priceRange[max]'];
+      if (min != null) res.hostel.priceRange.min = Number(min);
+      if (max != null) res.hostel.priceRange.max = Number(max);
+    } else if (req.body.priceRange != null) {
+      try {
+        const parsed = typeof req.body.priceRange === 'string'
+          ? JSON.parse(req.body.priceRange)
+          : req.body.priceRange;
+        if (parsed.min != null) res.hostel.priceRange.min = Number(parsed.min);
+        if (parsed.max != null) res.hostel.priceRange.max = Number(parsed.max);
+      } catch {}
+    }
+
+    // Set final images
+    const mergedImages = [...existingImages, ...uploadedImages];
+    if (mergedImages.length) {
+      res.hostel.images = mergedImages;
+    }
+
+    const updatedHostel = await res.hostel.save();
+    res.json(updatedHostel);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
 }
 
 export const deleteHostel = async (req, res) => {
@@ -134,7 +162,7 @@ export const deleteHostel = async (req, res) => {
 
 
 //function to get hostel by id
-export const getHostel = async (req, res, next) => {
+export const getHostel = async (req, res) => {
   try {
     const { id } = req.params
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -145,10 +173,25 @@ export const getHostel = async (req, res, next) => {
       return res.status(404).json({ message: 'Hostel not found' })
     }
     res.json(hostel)
+  } catch (err) {
+    res.status(500).json({ message: err.message })
+  }
+}
+
+//middleware to find hostel by id (for update/delete operations)
+export const findHostel = async (req, res, next) => {
+  try {
+    const { id } = req.params
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: 'Invalid hostel ID' })
+    }
+    const hostel = await Hostel.findById(id)
+    if (!hostel) {
+      return res.status(404).json({ message: 'Hostel not found' })
+    }
     res.hostel = hostel
     next()
   } catch (err) {
     res.status(500).json({ message: err.message })
   }
-
 }
