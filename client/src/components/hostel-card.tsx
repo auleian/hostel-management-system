@@ -76,13 +76,18 @@ export function HostelCard({ hostelId }: HostelCardProps) {
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
       <div className="relative h-48 w-full overflow-hidden">
-        {hostel.images?.[0] && (
-          <img
-            src={getImageUrl(hostel.images[0])}
-            alt={hostel.name}
-            className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 hover:scale-105"
-          />
-        )}
+        <img
+          src={hostel.images?.[0] ? getImageUrl(hostel.images[0]) : '/No-Image-Placeholder.svg'}
+          alt={hostel.name || 'Hostel image'}
+          onError={(e) => {
+            const img = e.currentTarget as HTMLImageElement
+            // Prevent infinite loop if fallback is missing
+            img.onerror = null
+            img.src = '/elegant-student-residence.jpg'
+          }}
+          loading="lazy"
+          className="object-contain h-full w-full object-cover transition-transform duration-300 hover:scale-105"
+        />
         <div className="absolute top-3 right-3">
           <Badge className="bg-primary text-primary-foreground">{hostel.availableRooms} rooms available</Badge>
         </div>
