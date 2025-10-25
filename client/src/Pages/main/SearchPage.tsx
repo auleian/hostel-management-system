@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from "react"
 import { Header } from "@/components/header"
 import { HostelCard } from "@/components/hostel-card"
 import { SearchFilters, type FilterState } from "@/components/search-filters"
-//import { mockHostels } from "@/lib/mock-data"
+//import { mockHostels } from "@/lib/mock-data"`
 import axios from "axios"
 
 export default function SearchPage() {

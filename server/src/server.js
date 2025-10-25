@@ -6,7 +6,7 @@ import { protect } from "./middleware/auth.js";
 
 import authRoutes from "./routes/auth.js";
 import bookingRoutes from "./routes/bookingRoutes.js";
-import hostelRoutes from "./Routes/hostelRoutes.js";
+import hostelRoutes from "./routes/hostelRoutes.js";
 import roomRoutes from "./routes/roomRoutes.js";
 
 import path from "path";

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import {getHostels, getHostel, addHostel, updateHostel, deleteHostel }  from '../controllers/hostelController.js';
+import {getHostels, getHostel, addHostel, updateHostel, deleteHostel, findHostel }  from '../controllers/hostelController.js';
 import multer from "multer";
 import path from "path";
 import fs from "fs";
@@ -37,10 +37,10 @@ router.get('/:id', getHostel)
 // Accept up to 5 images as 'images' field
 router.post('/', upload.array('images', 5), addHostel)
 
-//updating a hostel
-router.patch('/:id', getHostel, updateHostel)
+//updating a hostel (accept images too)
+router.patch('/:id', upload.array('images', 5), findHostel, updateHostel)
 
 //deleting a hostel
-router.delete('/:id', getHostel, deleteHostel);
+router.delete('/:id', findHostel, deleteHostel);
 
 export default router;

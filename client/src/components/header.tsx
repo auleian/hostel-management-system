@@ -1,7 +1,7 @@
 
 import { useState } from "react"
 import { Link } from "react-router-dom"
-import { Building2, Menu, X } from "lucide-react"
+import { Menu, X } from "lucide-react"
 import { LoginDialog } from "./login-dialog"
 import { SignupDialog } from "./signup-dialog"
 
@@ -13,7 +13,7 @@ export function Header() {
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="flex items-center text-black gap-2 font-bold text-xl">
+          <Link to="/" className="flex items-center text-black gap-2 font-bold text-xl pop delay-150">
             <div className="w-12 h-12 flex items-center justify-center">
               <svg
                 width="48"
