@@ -95,6 +95,10 @@
     min-height: 100vh;
   }
 }
+:root {
+  --fade-up-duration: 1500ms;
+  --pop-duration: 1800ms;
+}
 
 /*gradient edges */
 .gradient-edge {
@@ -115,12 +119,10 @@
   background: linear-gradient(270deg, var(--background) 0%, transparent 100%);
 }
 
-/* hide edges on small screens to avoid layout clutter */
 @media (max-width: 640px) {
   .gradient-edge { display: none; }
 }
 
-/*reusable keyframes*/
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -131,18 +133,16 @@
   100% { transform: scale(1); opacity: 1;}
 }
 
-/* reusable animation helpers */
 .observe-on-scroll.in-view .fade-up {
-  animation: fadeUp 700ms cubic-bezier(.22,.9,.35,1) both;
+  animation: fadeUp var(--fade-up-duration, 2200ms) cubic-bezier(.22,.9,.35,1) both;
   animation-delay: var(--anim-delay, 0ms);
 }
 .observe-on-scroll.in-view .pop {
-  animation: pop 900ms cubic-bezier(.22,.9,.35,1) both;
+  animation: pop var(--pop-duration, 2400ms) cubic-bezier(.22,.9,.35,1) both;
   animation-delay: var(--anim-delay, 0ms);
 }
 
-/* simple delay helpers */
-.delay-150 { animation-delay: 150ms; }
+.delay-500 { animation-delay: 500ms; }
 .delay-200 { animation-delay: 200ms; }
 
 .observe-on-scroll .fade-up,
@@ -183,14 +183,19 @@
   100% { transform: translateX(-50%); }
 }
 
-.banner-fadeBottom {
-  height: 7.4rem;
+.banner-fadeBottom-soft {
   background-image: linear-gradient(
     180deg,
-    transparent,
-    rgba(37, 37, 37, 0.61),
-    #111
+    transparent 0%,
+    rgba(255,255,255,0.35) 50%,
+    rgba(255,255,255,0.7) 100%
   );
+}
+
+.banner-fadeBottom-blur {
+  background: linear-gradient(180deg, rgba(255,255,255,0.0), rgba(255,255,255,0.45));
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 
 a {

@@ -64,7 +64,12 @@ export default function HomePage() {
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 py-20 md:py-32">
         <div className="container mx-auto px-4">
-         <img src="/background.jpg" alt="Student Room" className="absolute inset-0 w-full h-full object-cover opacity-30 pointer-events-none select-none" />         
+         <img src="/background.jpg"
+          alt="Student Room" 
+          className="absolute inset-0 w-full h-full object-cover opacity-30 pointer-events-none select-none" 
+          style={{ filter: 'none' }}
+          />
+          <div className="banner-fadeBottom-blur" />         
           <div ref={sectionRef as any} className="max-w-3xl mx-auto text-center space-y-6 observe-on-scroll in-view">
             <h1
               className="text-4xl md:text-6xl font-bold text-balance fade-up">
