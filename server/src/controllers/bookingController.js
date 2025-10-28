@@ -15,11 +15,13 @@ export const createBooking = async (req, res) => {
       return res.status(404).json({ message: "Room not found" });
     }
 
+    // Debug: log req.user to see what the protect middleware set
+    //console.log("req.user:", req.user);
+
     const booking = new Booking({
       checkInDate: new Date(checkInDate),
       room,
-      // bookedby can be set later when auth is integrated (req.user?._id)
-      bookedby: req.user?._id
+      bookedby: req.user?.id
     });
 
     await booking.save();
