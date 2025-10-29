@@ -15,11 +15,14 @@ export const createBooking = async (req, res) => {
       return res.status(404).json({ message: "Room not found" });
     }
 
+    // Debug: log req.user to see what the protect middleware set
+    //console.log("req.user:", req.user);
+
     const booking = new Booking({
       checkInDate: new Date(checkInDate),
       room,
-      // bookedby can be set later when auth is integrated (req.user?._id)
-      bookedby: req.user?._id
+      status: "pending",
+      bookedby: req.user?.id
     });
 
     await booking.save();
@@ -36,9 +39,31 @@ export const createBooking = async (req, res) => {
 export const getAllBookings = async (req, res) => {
   try {
     const bookings = await Booking.find()
+      .populate("bookedby")
       .populate({ path: "room", populate: { path: "hostel" } })
       .sort({ createdAt: -1 });
     res.json(bookings);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const updateBookingStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    // Validate status
+    if (!["pending", "confirmed", "cancelled"].includes(status)) {
+      return res.status(400).json({ message: "Invalid status" });
+    }
+
+    const booking = await Booking.findByIdAndUpdate(id, { status }, { new: true });
+    if (!booking) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+
+    res.json({ message: "Booking status updated", booking });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
