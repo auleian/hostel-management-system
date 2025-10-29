@@ -36,9 +36,9 @@ function App() {
         <Route path="/admin/hostels" element={<ManageHostelsPage />} />
         <Route path="/admin/hostels/new" element={<NewHostelPage />} />
         <Route path="/admin/settings" element={<Settings />} />
-        <Route path="/admin/hostels/:id/rooms/new" element={<NewRoomPage />} />
-        <Route path="/admin/hostels/:id/rooms" element={<ManageRoomPage />} />
-        <Route path="/admin/hostels/:id/bookings" element={<BookingsPage />} />
+        <Route path="/admin/rooms/new" element={<NewRoomPage />} />
+        <Route path="/admin/rooms" element={<ManageRoomPage />} />
+        <Route path="/admin/bookings" element={<BookingsPage />} />
         <Route path="/admin/hostels/:id" element={<EditHostel />} />
 
         

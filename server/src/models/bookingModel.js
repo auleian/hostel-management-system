@@ -19,7 +19,11 @@ const bookingSchema = new mongoose.Schema({
     bookedby: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
-        // Made optional to allow guest bookings until auth is integrated
+    },
+    status:{
+        type: String,
+        enum:["pending", "confirmed", "cancelled"],
+        default: "pending"
     },
     createdAt: {
         type: Date,
