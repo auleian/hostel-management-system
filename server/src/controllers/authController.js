@@ -31,7 +31,13 @@ export const register = async (req, res) => {
 
     res.status(201).json({
       token,
-      user: { id: user._id, name: user.name, email: user.email, university: user.university, contact: user.contact, nextOfKin: user.nextOfKin }
+      user: { id: user._id, 
+        name: user.name, email: 
+        user.email, 
+        university: user.university,
+        contact: user.contact,
+        nextOfKin: user.nextOfKin
+      }
     });
   } catch (err) {
     console.error(err);

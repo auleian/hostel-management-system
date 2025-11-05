@@ -79,7 +79,7 @@ export function SearchFilters({ onFilterChange }: SearchFiltersProps) {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All locations</SelectItem>
-              <SelectItem value="north">North Campus</SelectItem>
+              <SelectItem value="north">Kikoni</SelectItem>
               <SelectItem value="south">South Campus</SelectItem>
               <SelectItem value="east">East Campus</SelectItem>
               <SelectItem value="west">West Campus</SelectItem>

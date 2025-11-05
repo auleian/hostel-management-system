@@ -5,7 +5,7 @@ import { Header } from "@/components/header"
 import { HostelCard } from "@/components/hostel-card"
 import { SearchFilters, type FilterState } from "@/components/search-filters"
 //import { mockHostels } from "@/lib/mock-data"`
-import axios from "axios"
+import api from "@/lib/api"
 
 export default function SearchPage() {
   const [filters, setFilters] = useState<FilterState>({
@@ -13,26 +13,25 @@ export default function SearchPage() {
     location: "",
     genderPolicy: "all",
     roomType: "all",
-    priceRange: { min: null, max: null },
+    priceRange: { min: 0, max: 3000000 },
     amenities: [],
     isSelfContained: null,
   })
 
   const [hostels, setHostels] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   useEffect(() => {
     async function fetchHostels() {
       setLoading(true)
-      setError(null)
+      setErrorMessage(null)
       try {
-        const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
-        const res = await axios.get(`${apiBaseUrl}/hostels`)
+        const res = await api.get('/hostels')
         console.log("Fetched hostels:", res.data)
         setHostels(res.data)
       } catch (error) {
-        setError("Failed to load hostels.")
+        setErrorMessage("Failed to load hostels.")
       } 
     }
     fetchHostels()

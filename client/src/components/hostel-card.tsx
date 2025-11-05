@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { MapPin, Users, Wifi, Shield, Car, BookOpen, Bus } from "lucide-react"
 import type { Hostel } from "../lib/types"
-import axios from "axios"
+import api from "@/lib/api"
 import { getImageUrl } from "@/lib/utils"
 
 const amenityIcons = {
@@ -24,7 +24,6 @@ export function HostelCard({ hostelId }: HostelCardProps) {
   const [hostel, setHostel] = useState<Hostel | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
 
 
   useEffect(() => {
@@ -37,7 +36,7 @@ export function HostelCard({ hostelId }: HostelCardProps) {
       setLoading(true)
       setError(null)
       try {
-        const res = await axios.get(`${apiBaseUrl}/hostels/${hostelId}`)
+        const res = await api.get(`/hostels/${hostelId}`)
         // Map _id to id for frontend consistency
         const hostelData = res.data
         setHostel({
