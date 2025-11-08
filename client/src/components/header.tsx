@@ -2,11 +2,13 @@
 import { useState } from "react"
 import { Link } from "react-router-dom"
 import { Menu, X } from "lucide-react"
-import { LoginDialog } from "./login-dialog"
+import LoginDialog from "./login-dialog"
 import { SignupDialog } from "./signup-dialog"
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [loginOpen, setLoginOpen] = useState(false)
+  const [signupOpen, setSignupOpen] = useState(false)
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -51,8 +53,18 @@ export function Header() {
 
           {/* Auth Buttons */}
           <div className="hidden md:flex items-center gap-3">
-            <LoginDialog />
-            <SignupDialog />
+            <LoginDialog 
+              open={loginOpen} 
+              onOpenChange={setLoginOpen}
+              onOpenSignup={() => {
+                setLoginOpen(false)
+                setSignupOpen(true)
+              }}
+            />
+            <SignupDialog 
+              open={signupOpen} 
+              onOpenChange={setSignupOpen}
+            />
           </div>
 
           {/* Mobile Menu Button */}
@@ -95,8 +107,18 @@ export function Header() {
               </Link>
             </nav>
             <div className="flex flex-col gap-2 pt-4 border-t">
-              <LoginDialog />
-              <SignupDialog />
+              <LoginDialog 
+                open={loginOpen} 
+                onOpenChange={setLoginOpen}
+                onOpenSignup={() => {
+                  setLoginOpen(false)
+                  setSignupOpen(true)
+                }}
+              />
+              <SignupDialog 
+                open={signupOpen} 
+                onOpenChange={setSignupOpen}
+              />
             </div>
           </div>
         )}

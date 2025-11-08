@@ -75,8 +75,8 @@ export function AdminSidebar() {
                   className={cn(
                     "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors no-underline",
                     isActive
-                      ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                      : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground",
+                      ? "bg-sidebar-accent text-sidebar-accent-foreground hover:text-white"
+                      : "text-sidebar-foreground hover:bg-sidebar-accent/30 hover:text-green-600",
                   )}
                 >
                   <item.icon className="h-5 w-5" />

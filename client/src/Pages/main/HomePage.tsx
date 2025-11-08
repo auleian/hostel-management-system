@@ -1,17 +1,20 @@
-import { Link } from "react-router-dom"
+import { Link, useNavigate} from "react-router-dom"
 import { useEffect, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Header } from "@/components/header"
 import { HostelCard } from "@/components/hostel-card"
 import { mockHostels } from "../../lib/mock-data"
-import { Search, Shield, Clock, Star } from "lucide-react"
+import { Search } from "lucide-react"
 import api from '@/lib/api'
 import { useToast } from '@/hooks/use-toast'
 // @ts-ignore: importing an untyped JSX module (FeatureSection.jsx)
 import FeatureSection from "@/components/FeatureSection"
 import useInView from "@/hooks/useInView"
+import LoginDialog from "@/components/login-dialog"
+import { SignupDialog } from "@/components/signup-dialog"
 
 export default function HomePage() {
+  const navigate = useNavigate()
   const { toast } = useToast()
   const [hostels, setHostels] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -19,6 +22,48 @@ export default function HomePage() {
   const sectionRef = useInView()
   const featuredHeaderRef = useInView()
   const ctaSectionRef = useInView()
+
+  const [checkingAdmin, setCheckingAdmin] = useState(false)
+  const [showLoginDialog, setShowLoginDialog] = useState(false)
+  const [showSignupDialog, setShowSignupDialog] = useState(false)
+
+  const handleAdminClick = async () => {
+    try {
+      setCheckingAdmin(true)
+      // Primary attempt: fetch current user
+      const res = await api.get('/auth/me')
+      const user = res.data
+      const isAdmin = user?.role === 'admin' || user?.isAdmin === true
+      if (isAdmin) {
+        navigate('/admin')
+      } else {
+        setShowLoginDialog(true)
+      }
+    } catch (err:any) {
+      if (err.response?.status === 404) {
+        setShowLoginDialog(true)
+        return
+      }
+      
+      try {
+        const res2 = await api.get('/auth/check-admin')
+        if (res2.data?.isAdmin) navigate('/admin')
+        else setShowLoginDialog(true)
+      } catch (err2:any) {
+        if (err2.response?.status !== 404) {
+          console.error('Admin check failed:', err2)
+        }
+        toast({
+          title: 'Authentication required',
+          description: 'Please sign in as an admin to continue.',
+          variant: 'destructive'
+        })
+        setShowLoginDialog(true)
+      }
+    } finally {
+      setCheckingAdmin(false)
+    }
+  }
 
   useEffect(() => {
     let ignore = false
@@ -60,11 +105,26 @@ export default function HomePage() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
+        <LoginDialog 
+          open={showLoginDialog} 
+          onOpenChange={setShowLoginDialog}
+          onOpenSignup={() => {
+            setShowLoginDialog(false)
+            setShowSignupDialog(true)
+          }}
+          showTrigger={false}
+        />
+        <SignupDialog 
+          open={showSignupDialog} 
+          onOpenChange={setShowSignupDialog}
+          showTrigger={false}
+        />
+
 
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 py-20 md:py-32">
         <div className="container mx-auto px-4">
-         <img src="/background.jpg"
+        <img src="/background.jpg"
           alt="Student Room" 
           className="absolute inset-0 w-full h-full object-cover opacity-30 pointer-events-none select-none" 
           style={{ filter: 'none' }}
@@ -73,12 +133,12 @@ export default function HomePage() {
           <div ref={sectionRef as any} className="max-w-3xl mx-auto text-center space-y-6 observe-on-scroll in-view">
             <h1
               className="text-4xl md:text-6xl font-bold text-balance fade-up">
-              <span className="text-green-600 inline-block pop">Home</span>
+              <span className="text-green-600 inline-block pop delay-500">Home</span>
               {" "}away from{" "}
-              <span className="text-green-600 inline-block pop delay-150">Home</span>
+              <span className="text-green-600 inline-block pop delay-500">Home</span>
             </h1>
             <p
-              className="text-lg md:text-xl text-muted-foreground text-pretty fade-up delay-200 will-change-transform">
+              className="text-lg md:text-xl text-muted-foreground text-pretty fade-up delay-600 will-change-transform">
               Browse hundreds of verified hostels near your campus. Book your room in minutes and focus on what matters
               - your education.
             </p>
@@ -89,9 +149,16 @@ export default function HomePage() {
                   Browse Hostels
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="text-base bg-transparent pop delay-150">
-                <Link className="text-black hover:text-white fade-up" to="/admin">Admin Portal</Link>
-              </Button>
+            <Button 
+              size="lg" 
+              variant="outline" 
+              className="text-base bg-transparent pop delay-150 text-black hover:text-white fade-up"
+              onClick={handleAdminClick}
+              type="button"
+              aria-busy={checkingAdmin}
+            >
+              {checkingAdmin ? 'Checking...' : 'Admin Portal'}
+            </Button>
             </div>
           </div>
         </div>

@@ -96,8 +96,11 @@
   }
 }
 :root {
-  --fade-up-duration: 1500ms;
-  --pop-duration: 1800ms;
+  --fade-up-duration: 2600ms;
+  --pop-duration: 2600ms;
+  --fade-easing: cubic-bezier(.16,.84,.28,1); /* smooth, slow ease-out */
+  --pop-easing: cubic-bezier(.22,.9,.35,1);    /* retains subtle spring feel */
+  --anim-delay: 0ms;
 }
 
 /*gradient edges */
@@ -134,21 +137,26 @@
 }
 
 .observe-on-scroll.in-view .fade-up {
-  animation: fadeUp var(--fade-up-duration, 2200ms) cubic-bezier(.22,.9,.35,1) both;
+  animation: fadeUp var(--fade-up-duration) var(--fade-easing) both;
   animation-delay: var(--anim-delay, 0ms);
-}
-.observe-on-scroll.in-view .pop {
-  animation: pop var(--pop-duration, 2400ms) cubic-bezier(.22,.9,.35,1) both;
-  animation-delay: var(--anim-delay, 0ms);
+  backface-visibility: hidden;
+  transform: translateZ(0);
 }
 
-.delay-500 { animation-delay: 500ms; }
-.delay-200 { animation-delay: 200ms; }
+.observe-on-scroll.in-view .pop {
+  animation: pop var(--pop-duration) var(--pop-easing) both;
+  animation-delay: var(--anim-delay, 0ms);
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
 
 .observe-on-scroll .fade-up,
 .observe-on-scroll .pop {
   opacity: 0;
   transform-origin: center;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  transform: translateZ(0);
 }
 
 /* preserve rendering hints */

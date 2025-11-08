@@ -1,7 +1,5 @@
-
 import type React from "react"
-
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -15,8 +13,25 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { LogIn } from "lucide-react"
 
-export function LoginDialog() {
-  const [open, setOpen] = useState(false)
+type LoginDialogProps = {
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+  onOpenSignup?: () => void
+  showTrigger?: boolean
+}
+
+export default function LoginDialog({ open, onOpenChange, onOpenSignup, showTrigger = true }: LoginDialogProps) {
+  const [internalOpen, setInternalOpen] = useState<boolean>(open ?? false)
+
+  useEffect(() => {
+    if (open !== undefined) setInternalOpen(open)
+  }, [open])
+
+  const handleOpenChange = (v: boolean) => {
+    if (onOpenChange) onOpenChange(v)
+    else setInternalOpen(v)
+  }
+
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
 
@@ -24,21 +39,25 @@ export function LoginDialog() {
     e.preventDefault()
     // TODO: Implement login logic
     console.log("Login:", { email, password })
-    setOpen(false)
+    handleOpenChange(false)
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          <LogIn className="mr-2 h-4 w-4" />
-          Login
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open ?? internalOpen} onOpenChange={handleOpenChange}>
+      {showTrigger && (
+        <DialogTrigger asChild>
+          <Button variant="outline" size="sm">
+            <LogIn className="mr-2 h-4 w-4" />
+            Login
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Welcome Back</DialogTitle>
-          <DialogDescription>Login to your account to manage bookings and access exclusive features.</DialogDescription>
+          <DialogTitle className="text-2xl font-bold text-green-600 fade-in">Welcome Back</DialogTitle>
+          <DialogDescription>
+            Login to your account to manage bookings and access exclusive features.
+          </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
@@ -46,7 +65,7 @@ export function LoginDialog() {
             <Input
               id="login-email"
               type="email"
-              placeholder="student@university.edu"
+              placeholder="name@students.mak.ac.ug"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -57,7 +76,7 @@ export function LoginDialog() {
             <Input
               id="login-password"
               type="password"
-              placeholder="••••••••"
+              placeholder="*********"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -68,7 +87,14 @@ export function LoginDialog() {
           </Button>
           <p className="text-sm text-center text-muted-foreground">
             Don't have an account?{" "}
-            <Button className="text-white hover:underline" onClick={() => setOpen(false)}>
+            <Button 
+              variant="link" 
+              className="text-primary hover:underline p-0 h-auto font-normal"
+              onClick={() => {
+                handleOpenChange(false)
+                onOpenSignup?.()
+              }}
+            >
               Sign up
             </Button>
           </p>
