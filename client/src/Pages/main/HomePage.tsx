@@ -1,4 +1,4 @@
-import { Link, useNavigate} from "react-router-dom"
+import { Link } from "react-router-dom"
 import { useEffect, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Header } from "@/components/header"
@@ -12,9 +12,9 @@ import FeatureSection from "@/components/FeatureSection"
 import useInView from "@/hooks/useInView"
 import LoginDialog from "@/components/login-dialog"
 import { SignupDialog } from "@/components/signup-dialog"
+import { useAdminAuth } from "@/hooks/useAdminAuth"
 
 export default function HomePage() {
-  const navigate = useNavigate()
   const { toast } = useToast()
   const [hostels, setHostels] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -23,46 +23,12 @@ export default function HomePage() {
   const featuredHeaderRef = useInView()
   const ctaSectionRef = useInView()
 
-  const [checkingAdmin, setCheckingAdmin] = useState(false)
   const [showLoginDialog, setShowLoginDialog] = useState(false)
   const [showSignupDialog, setShowSignupDialog] = useState(false)
+  const { checkingAdmin, checkAdminAccess } = useAdminAuth()
 
-  const handleAdminClick = async () => {
-    try {
-      setCheckingAdmin(true)
-      // Primary attempt: fetch current user
-      const res = await api.get('/auth/me')
-      const user = res.data
-      const isAdmin = user?.role === 'admin' || user?.isAdmin === true
-      if (isAdmin) {
-        navigate('/admin')
-      } else {
-        setShowLoginDialog(true)
-      }
-    } catch (err:any) {
-      if (err.response?.status === 404) {
-        setShowLoginDialog(true)
-        return
-      }
-      
-      try {
-        const res2 = await api.get('/auth/check-admin')
-        if (res2.data?.isAdmin) navigate('/admin')
-        else setShowLoginDialog(true)
-      } catch (err2:any) {
-        if (err2.response?.status !== 404) {
-          console.error('Admin check failed:', err2)
-        }
-        toast({
-          title: 'Authentication required',
-          description: 'Please sign in as an admin to continue.',
-          variant: 'destructive'
-        })
-        setShowLoginDialog(true)
-      }
-    } finally {
-      setCheckingAdmin(false)
-    }
+  const handleAdminClick = () => {
+    checkAdminAccess(() => setShowLoginDialog(true))
   }
 
   useEffect(() => {
@@ -167,23 +133,31 @@ export default function HomePage() {
       {/* Features Section */}
       <FeatureSection />
       {/* Featured Hostels */}
-      <section className="py-16">
+      <section className="py-16 observe-on-scroll" ref={featuredHeaderRef as any}>
         <div className="container mx-auto px-4">
-          <div ref={featuredHeaderRef as any} className="flex items-center justify-between mb-8">
+          <div className="flex items-center justify-between mb-8">
             <div>
-              <h2 className="text-3xl font-bold text-balance  pop delay-150">Featured Hostels</h2>
-              <p className="text-muted-foreground mt-2 fade-up delay-200 will-change-transform">Popular choices among students</p>
+              <h2 className="text-3xl font-bold text-balance pop delay-150">Featured Hostels</h2>
+              <p className="text-muted-foreground mt-2 fade-up delay-400 will-change-transform">Popular choices among students</p>
             </div>
             <Button asChild variant="outline">
-              <Link to="/search" className="fade-up">View All</Link>
+              <Link to="/search" className="fade-up delay-600">View All</Link>
             </Button>
           </div>
           {loading ? (
-            <div className="py-12 text-center text-muted-foreground">Loading hostels...</div>
+            <div className="py-12 text-center text-muted-foreground fade-up delay-800">Loading hostels...</div>
           ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 ">
-              {featuredHostels.map((hostel:any) => (
-                <HostelCard key={hostel._id} hostelId={hostel._id} />
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {featuredHostels.map((hostel:any, index:number) => (
+                <div 
+                  key={hostel._id} 
+                  className="fade-up-smooth"
+                  style={{ 
+                    '--anim-delay': `${800 + (index * 200)}ms`
+                  } as React.CSSProperties}
+                >
+                  <HostelCard hostelId={hostel._id} />
+                </div>
               ))}
             </div>
           )}
