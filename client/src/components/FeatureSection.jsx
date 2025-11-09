@@ -9,8 +9,8 @@ function FeatureSection() {
     <div ref={ref} className="md:my-20 my-10 relative">
       <div className='gradient-edge'/>
 
-      <div className='marquee h-52'>
-        <div className='marquee-box md:gap-12 gap-5'>
+      <div className='h-52'>
+        <div className='md:gap-12 gap-5'>
           {/*Duplicate for showing infinite display #Copy1*/}
                <section className="py-16 bg-muted/30">
                   <div className="container mx-auto px-4">
