@@ -67,7 +67,7 @@ export const login = async (req, res) => {
 
     res.json({
       token,
-      user: { id: user._id, name: user.name, email: user.email }
+      user: { id: user._id, name: user.name, email: user.email, phone: user.contact }
     });
   } catch (err) {
     console.error(err);

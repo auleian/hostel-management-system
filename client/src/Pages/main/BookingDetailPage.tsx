@@ -10,6 +10,8 @@ import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, Calendar, User, Mail, Phone, CreditCard } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import api from "@/lib/api"
+import { LoadingState, LoadingSpinner } from "@/components/ui/loading-spinner"
+import { useAuthContext } from "@/contexts/AuthContext"
 
 
 export default function BookingPage() {
@@ -18,7 +20,10 @@ export default function BookingPage() {
   const { toast } = useToast()
   const [room, setRoom] = useState<any | null>(null)
   const [loading, setLoading] = useState(true)
+  const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  const { user } = useAuthContext()
 
   const [formData, setFormData] = useState({
     username: "",
@@ -52,9 +57,12 @@ export default function BookingPage() {
       <div className="min-h-screen flex flex-col">
         <Header />
         <main className="flex-1 py-16">
-          <div className="container mx-auto px-4 text-center space-y-6">
-            <h1 className="text-3xl font-bold">Loading Room...</h1>
-            <p className="text-muted-foreground">Please wait while we fetch room details.</p>
+          <div className="container mx-auto px-4">
+            <LoadingState 
+              title="Loading Room Details"
+              description="Please wait while we fetch the room information and availability."
+              size="xl"
+            />
           </div>
         </main>
       </div>
@@ -83,6 +91,7 @@ export default function BookingPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setSubmitting(true)
     try {
       const payload = {
         ...formData,
@@ -102,6 +111,8 @@ export default function BookingPage() {
         description: err.response?.data?.message || 'Unable to create booking',
         variant: 'destructive'
       })
+    } finally {
+      setSubmitting(false)
     }
   }
 
@@ -136,7 +147,8 @@ export default function BookingPage() {
                     <Input
                       id="username"
                       placeholder="John Doe"
-                      value={formData.username}
+                      value={user?.name}
+                      disabled
                       onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                       required
                     />
@@ -151,7 +163,8 @@ export default function BookingPage() {
                       id="email"
                       type="email"
                       placeholder="student@university.edu"
-                      value={formData.email}
+                      value={user?.email}
+                      disabled
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       required
                     />
@@ -166,9 +179,9 @@ export default function BookingPage() {
                       id="phonenumber"
                       type="tel"
                       placeholder="+256 700 000 000"
-                      value={formData.phonenumber}
+                      disabled
+                      value={user?.phone}
                       onChange={(e) => setFormData({ ...formData, phonenumber: e.target.value })}
-                      required
                     />
                   </div>
 
@@ -188,9 +201,18 @@ export default function BookingPage() {
                   </div>
 
                   <div className="pt-4 border-t">
-                    <Button type="submit" className="w-full" size="lg">
-                      <CreditCard className="mr-2 h-5 w-5" />
-                      Confirm Booking
+                    <Button type="submit" className="w-full" size="lg" disabled={submitting}>
+                      {submitting ? (
+                        <>
+                          <LoadingSpinner size="sm" className="mr-2" />
+                          Processing Booking...
+                        </>
+                      ) : (
+                        <>
+                          <CreditCard className="mr-2 h-5 w-5" />
+                          Confirm Booking
+                        </>
+                      )}
                     </Button>
                   </div>
                 </form>
