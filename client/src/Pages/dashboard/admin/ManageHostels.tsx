@@ -50,7 +50,7 @@ export default function HostelsPage() {
     useEffect(() => {
     if (!user) return
     if (user.role !== "admin") {
-      navigate("/dashboard")
+      navigate("/")
       return
     }
     fetchHostels() 
