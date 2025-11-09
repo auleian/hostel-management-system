@@ -16,6 +16,12 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
+// Disable ETag responses for API endpoints so authenticated JSON endpoints
+// always return a full JSON body instead of 304 Not Modified when the
+// client includes If-None-Match. This avoids accidental empty responses
+// for protected API routes during development.
+app.set('etag', false);
+
 // Serve images from /media
 app.use('/media', express.static(path.join(__dirname, 'media')));
 

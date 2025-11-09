@@ -13,12 +13,23 @@ export function useAdminAuth() {
       setCheckingAdmin(true)
       // Primary attempt: fetch current user
       const res = await api.get('/auth/me')
-      const user = res.data
-      const isAdmin = user?.role === 'admin' || user?.isAdmin === true
-      if (isAdmin) {
-        navigate('/admin')
+      // Only treat a 200 OK with a body as an authenticated response.
+      // Some intermediary/proxy responses (304 Not Modified) may be returned
+      // and have no body; treat those as no-data and fall back to the check-admin endpoint.
+      if (res.status === 200 && res.data) {
+        const user = res.data
+        // server returns `userType` for role (admin | student)
+        const isAdmin = user?.userType === 'admin' || user?.role === 'admin' || user?.isAdmin === true
+        if (isAdmin) {
+          navigate('/admin')
+        } else {
+          onRequireLogin?.()
+        }
       } else {
-        onRequireLogin?.()
+        // Fallback to the explicit admin-check endpoint
+        const res2 = await api.get('/auth/check-admin')
+        if (res2.status === 200 && res2.data?.isAdmin) navigate('/admin')
+        else onRequireLogin?.()
       }
     } catch (err: any) {
       if (err.response?.status === 404) {

@@ -26,9 +26,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(nextUser)
     setToken(nextToken)
     if (nextUser && nextToken) {
+      // Persist both the composite 'auth' object and a top-level 'token' for compatibility with older code
       localStorage.setItem("auth", JSON.stringify({ user: nextUser, token: nextToken }))
+      localStorage.setItem("token", nextToken)
     } else {
       localStorage.removeItem("auth")
+      localStorage.removeItem("token")
     }
   }
 

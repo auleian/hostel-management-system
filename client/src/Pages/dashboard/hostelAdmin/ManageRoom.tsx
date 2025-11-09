@@ -4,12 +4,14 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { mockRooms, mockHostels } from "@/lib/mock-data"
+import { AdminLayout } from "@/components/AdminLayout"
 import { Bed, Plus, Search, Edit, Trash2, Building2 } from "lucide-react"
 import {Link} from "react-router-dom"
 
 export default function RoomsPage() {
   return (
-    <div className="space-y-8">
+    <AdminLayout>
+      <div className="space-y-8">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -116,6 +118,7 @@ export default function RoomsPage() {
           </div>
         </CardContent>
       </Card>
-    </div>
+      </div>
+    </AdminLayout>
   )
 }

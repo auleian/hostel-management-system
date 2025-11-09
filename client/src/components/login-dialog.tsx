@@ -11,7 +11,10 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { LogIn } from "lucide-react"
+import { LogIn, Loader2 } from "lucide-react"
+import { useAuthContext } from "@/contexts/AuthContext"
+import api from "@/lib/api"
+import { toast } from "sonner"
 
 type LoginDialogProps = {
   open?: boolean
@@ -34,12 +37,31 @@ export default function LoginDialog({ open, onOpenChange, onOpenSignup, showTrig
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const { setAuth } = useAuthContext()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // TODO: Implement login logic
-    console.log("Login:", { email, password })
-    handleOpenChange(false)
+    setError(null)
+    setIsLoading(true)
+
+    try {
+      const response = await api.post('/auth/login', { email, password })
+      const { user, token } = response.data
+      
+      setAuth({ user, token })
+      toast.success(`Welcome back, ${user.name}!`)
+      handleOpenChange(false)
+    } catch (err: any) {
+        console.error('Login error:', err)
+        // server returns { msg } for validation/auth errors; prefer that, then fallback to message
+        const serverMsg = err.response?.data?.msg || err.response?.data?.message
+        setError(serverMsg || 'Failed to login. Please try again.')
+        toast.error(serverMsg || 'An error occurred during login')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -80,10 +102,21 @@ export default function LoginDialog({ open, onOpenChange, onOpenSignup, showTrig
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              minLength={6}
             />
           </div>
-          <Button type="submit" className="w-full">
-            Login
+          {error && (
+            <p className="text-sm text-red-500">{error}</p>
+          )}
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Logging in...
+              </>
+            ) : (
+              'Login'
+            )}
           </Button>
           <p className="text-sm text-center text-muted-foreground">
             Don't have an account?{" "}
