@@ -35,7 +35,7 @@ const roomSchema = new mongoose.Schema ({
     },
     amenities: {
         type: [String],
-        enum: ['wifi', 'air conditioning', 'heating', 'tv', 'mini fridge']
+        enum: ['wifi', 'air conditioning', 'heating', 'tv', 'mini fridge', 'desk']
     },
     images: {
         type: [String],

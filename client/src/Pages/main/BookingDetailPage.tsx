@@ -12,13 +12,14 @@ import { useToast } from "@/hooks/use-toast"
 import api from "@/lib/api"
 import { LoadingState, LoadingSpinner } from "@/components/ui/loading-spinner"
 import { useAuthContext } from "@/contexts/AuthContext"
+import { useRoomStore } from "@/stores/roomStore"
 
 
 export default function BookingPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { toast } = useToast()
-  const [room, setRoom] = useState<any | null>(null)
+  const { fetchRoomById, getRoomById } = useRoomStore()
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -33,24 +34,21 @@ export default function BookingPage() {
   })
 
   useEffect(() => {
-    let ignore = false
-    const fetchRoom = async () => {
+    const loadRoom = async () => {
       if (!id) return
       try {
         setLoading(true)
-        const res = await api.get(`/rooms/${id}`)
-        if (!ignore) {
-          setRoom(res.data)
-        }
+        await fetchRoomById(id)
       } catch (err: any) {
-        if (!ignore) setError(err.response?.data?.message || "Failed to load room")
+        setError(err.response?.data?.message || "Failed to load room")
       } finally {
-        if (!ignore) setLoading(false)
+        setLoading(false)
       }
     }
-    fetchRoom()
-    return () => { ignore = true }
-  }, [id])
+    loadRoom()
+  }, [id, fetchRoomById])
+
+  const room = id ? getRoomById(id) : null
 
   if (loading) {
     return (
@@ -124,7 +122,7 @@ export default function BookingPage() {
         <div className="container mx-auto px-4 max-w-4xl">
           {/* Back Button */}
           <Button asChild variant="ghost" className="mb-6">
-            <Link to={`/hostel/${room.hostel?._id || room.hostel}`} className="no-underline flex items-center">
+            <Link to={`/hostel/${typeof room.hostel === 'string' ? room.hostel : room.hostel?._id}`} className="no-underline flex items-center">
               <ArrowLeft className="mr-2 h-4 w-4" /> Back to Hostel
             </Link>
           </Button>
@@ -235,7 +233,9 @@ export default function BookingPage() {
                   </div>
 
                   <div>
-                    <h3 className="font-bold text-lg">{room.hostel?.name || 'Hostel'}</h3>
+                    <h3 className="font-bold text-lg">
+                      {typeof room.hostel === 'string' ? 'Hostel' : room.hostel?.name || 'Hostel'}
+                    </h3>
                     <p className="text-sm text-muted-foreground">Room {room.roomNumber}</p>
                   </div>
 
