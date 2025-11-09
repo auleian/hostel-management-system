@@ -12,6 +12,9 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { LogIn } from "lucide-react"
+import api from "@/lib/api"
+import { toast } from "sonner"
+import { useAuthContext } from "@/contexts/AuthContext"
 
 type LoginDialogProps = {
   open?: boolean
@@ -22,6 +25,7 @@ type LoginDialogProps = {
 
 export default function LoginDialog({ open, onOpenChange, onOpenSignup, showTrigger = true }: LoginDialogProps) {
   const [internalOpen, setInternalOpen] = useState<boolean>(open ?? false)
+  const { setAuth } = useAuthContext()
 
   useEffect(() => {
     if (open !== undefined) setInternalOpen(open)
@@ -35,11 +39,29 @@ export default function LoginDialog({ open, onOpenChange, onOpenSignup, showTrig
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // TODO: Implement login logic
-    console.log("Login:", { email, password })
-    handleOpenChange(false)
+    
+    api.post('/auth/login', { email, password })
+      .then(response => {
+        console.log("Login successful:", response.data)
+        
+        // Save authentication data to context
+        const { token, user } = response.data
+        setAuth({ token, user })
+        
+        toast.success("Login successful!", {
+          description: `Welcome back, ${user.name}!`
+        })
+        handleOpenChange(false)
+      })
+      .catch(error => {
+        console.error("Login failed:", error)
+        const errorMessage = error.response?.data?.message || error.response?.data?.error || "Invalid email or password"
+        toast.error("Login failed", {
+          description: errorMessage
+        })
+      })
   }
 
   return (

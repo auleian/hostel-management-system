@@ -4,7 +4,12 @@ import bcrypt from 'bcryptjs';
 const UserSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true, lowercase: true },
-  telephone: { type: String },
+  contact: { type: String },
+  university: { type: String },
+  nextOfKin: {
+    name: { type: String },
+    contact: { type: String }
+  },
   password: { type: String, required: true },
   userType: { type: String, enum: ['admin', 'student'], default: 'student' },
   isVerified: { type: Boolean, default: false },
