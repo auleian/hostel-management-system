@@ -4,12 +4,15 @@ import { Button } from "@/components/ui/button"
 import { Header } from "@/components/header"
 import { HostelCard } from "@/components/hostel-card"
 import { mockHostels } from "../../lib/mock-data"
-import { Search, Shield, Clock, Star } from "lucide-react"
+import { Search } from "lucide-react"
 import api from '@/lib/api'
 import { useToast } from '@/hooks/use-toast'
 // @ts-ignore: importing an untyped JSX module (FeatureSection.jsx)
 import FeatureSection from "@/components/FeatureSection"
 import useInView from "@/hooks/useInView"
+import LoginDialog from "@/components/login-dialog"
+import { SignupDialog } from "@/components/signup-dialog"
+import { useAdminAuth } from "@/hooks/useAdminAuth"
 
 export default function HomePage() {
   const { toast } = useToast()
@@ -19,6 +22,14 @@ export default function HomePage() {
   const sectionRef = useInView()
   const featuredHeaderRef = useInView()
   const ctaSectionRef = useInView()
+
+  const [showLoginDialog, setShowLoginDialog] = useState(false)
+  const [showSignupDialog, setShowSignupDialog] = useState(false)
+  const { checkingAdmin, checkAdminAccess } = useAdminAuth()
+
+  const handleAdminClick = () => {
+    checkAdminAccess(() => setShowLoginDialog(true))
+  }
 
   useEffect(() => {
     let ignore = false
@@ -60,11 +71,26 @@ export default function HomePage() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
+        <LoginDialog 
+          open={showLoginDialog} 
+          onOpenChange={setShowLoginDialog}
+          onOpenSignup={() => {
+            setShowLoginDialog(false)
+            setShowSignupDialog(true)
+          }}
+          showTrigger={false}
+        />
+        <SignupDialog 
+          open={showSignupDialog} 
+          onOpenChange={setShowSignupDialog}
+          showTrigger={false}
+        />
+
 
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 py-20 md:py-32">
         <div className="container mx-auto px-4">
-         <img src="/background.jpg"
+        <img src="/background.jpg"
           alt="Student Room" 
           className="absolute inset-0 w-full h-full object-cover opacity-30 pointer-events-none select-none" 
           style={{ filter: 'none' }}
@@ -73,12 +99,12 @@ export default function HomePage() {
           <div ref={sectionRef as any} className="max-w-3xl mx-auto text-center space-y-6 observe-on-scroll in-view">
             <h1
               className="text-4xl md:text-6xl font-bold text-balance fade-up">
-              <span className="text-green-600 inline-block pop">Home</span>
+              <span className="text-green-600 inline-block pop delay-500">Home</span>
               {" "}away from{" "}
-              <span className="text-green-600 inline-block pop delay-150">Home</span>
+              <span className="text-green-600 inline-block pop delay-500">Home</span>
             </h1>
             <p
-              className="text-lg md:text-xl text-muted-foreground text-pretty fade-up delay-200 will-change-transform">
+              className="text-lg md:text-xl text-muted-foreground text-pretty fade-up delay-600 will-change-transform">
               Browse hundreds of verified hostels near your campus. Book your room in minutes and focus on what matters
               - your education.
             </p>
@@ -89,9 +115,16 @@ export default function HomePage() {
                   Browse Hostels
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="text-base bg-transparent pop delay-150">
-                <Link className="text-black hover:text-white fade-up" to="/admin">Admin Portal</Link>
-              </Button>
+            <Button 
+              size="lg" 
+              variant="outline" 
+              className="text-base bg-transparent pop delay-150 text-black hover:text-white fade-up"
+              onClick={handleAdminClick}
+              type="button"
+              aria-busy={checkingAdmin}
+            >
+              {checkingAdmin ? 'Checking...' : 'Admin Portal'}
+            </Button>
             </div>
           </div>
         </div>
@@ -100,23 +133,31 @@ export default function HomePage() {
       {/* Features Section */}
       <FeatureSection />
       {/* Featured Hostels */}
-      <section className="py-16">
+      <section className="py-16 observe-on-scroll" ref={featuredHeaderRef as any}>
         <div className="container mx-auto px-4">
-          <div ref={featuredHeaderRef as any} className="flex items-center justify-between mb-8">
+          <div className="flex items-center justify-between mb-8">
             <div>
-              <h2 className="text-3xl font-bold text-balance  pop delay-150">Featured Hostels</h2>
-              <p className="text-muted-foreground mt-2 fade-up delay-200 will-change-transform">Popular choices among students</p>
+              <h2 className="text-3xl font-bold text-balance pop delay-150">Featured Hostels</h2>
+              <p className="text-muted-foreground mt-2 fade-up delay-400 will-change-transform">Popular choices among students</p>
             </div>
             <Button asChild variant="outline">
-              <Link to="/search" className="fade-up">View All</Link>
+              <Link to="/search" className="fade-up delay-600">View All</Link>
             </Button>
           </div>
           {loading ? (
-            <div className="py-12 text-center text-muted-foreground">Loading hostels...</div>
+            <div className="py-12 text-center text-muted-foreground fade-up delay-800">Loading hostels...</div>
           ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 ">
-              {featuredHostels.map((hostel:any) => (
-                <HostelCard key={hostel._id} hostelId={hostel._id} />
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {featuredHostels.map((hostel:any, index:number) => (
+                <div 
+                  key={hostel._id} 
+                  className="fade-up-smooth"
+                  style={{ 
+                    '--anim-delay': `${800 + (index * 200)}ms`
+                  } as React.CSSProperties}
+                >
+                  <HostelCard hostelId={hostel._id} />
+                </div>
               ))}
             </div>
           )}

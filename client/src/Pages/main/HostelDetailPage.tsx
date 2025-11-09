@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge"
 import { MapPin, Phone, Users, Wifi, Shield, Car, BookOpen, Bus, ArrowLeft, Bed } from "lucide-react"
 import { useState, useEffect } from "react"
 import { Hostel, Room } from "@/lib/types"
+import api from "@/lib/api"
+
 
 const amenityIcons = {
   wifi: Wifi,
@@ -23,52 +25,41 @@ export default function HostelDetailPage() {
   const [rooms, setRooms] = useState<Room[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
+  const isLoggedIn = Boolean(localStorage.getItem('token'))
 
   useEffect(() => {
     const fetchHostelData = async () => {
       if (!id) return
-      
+
+
+
       try {
         setLoading(true)
         setError(null)
 
-        // Fetch hostel details
-        const hostelResponse = await fetch(`${apiBaseUrl}/hostels/${id}`)
-        if (!hostelResponse.ok) {
-          throw new Error('Failed to fetch hostel details')
-        }
-        const hostelData = await hostelResponse.json()
-        setHostel(hostelData)
+        // Use shared api util so baseURL, headers and interceptors are applied
+        const hostelResp = await api.get(`/hostels/${id}`)
+        setHostel(hostelResp.data)
 
-        // Fetch rooms for this hostel
-        const roomsResponse = await fetch(`${apiBaseUrl}/rooms?hostel=${id}&isAvailable=true`)
-        if (!roomsResponse.ok) {
-          throw new Error('Failed to fetch rooms')
-        }
-        const roomsData = await roomsResponse.json()
-        setRooms(roomsData)
-
+        const roomsResp = await api.get(`/rooms`, { params: { hostel: id, isAvailable: true } })
+        setRooms(roomsResp.data)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred')
       } finally {
-        setLoading(false)
+          setLoading(false)
       }
+
     }
 
     fetchHostelData()
-  }, [id, apiBaseUrl])
+  }, [id])
 
-  // Helper function to get image URL
-  const getImageUrl = (imagePath: string) => {
-    const baseUrl = apiBaseUrl ?? "";
-    return `${baseUrl.replace('/api', '')}/media/hostels/${imagePath}`
-  }
-
-  const getRoomImageUrl = (imagePath: string) => {
-    const baseUrl = apiBaseUrl ?? "";
-    return `${baseUrl.replace('/api', '')}/media/rooms/${imagePath}`
-  }
+   const mediaBase = (() => {
+    const base = api.defaults.baseURL || ""
+    return base.replace(/\/api\/?$/, "") || ""
+  })()
+  const getImageUrl = (imagePath: string) => `${mediaBase}/media/hostels/${imagePath}`
+  const getRoomImageUrl = (imagePath: string) => `${mediaBase}/media/rooms/${imagePath}`
 
   if (loading) {
     return (
@@ -147,7 +138,7 @@ export default function HostelDetailPage() {
 
               <div className="flex flex-wrap gap-2">
                 <Badge className="bg-primary text-primary-foreground">
-                  {rooms.length} rooms available
+                  {hostel.availableRooms} rooms available
                 </Badge>
                 <Badge variant="outline" className="capitalize">
                   <Users className="mr-1 h-3 w-3" />
@@ -232,7 +223,11 @@ export default function HostelDetailPage() {
                           </p>
                         </div>
                         <Button asChild className="w-full" size="sm">
-                          <Link to={`/booking/${room._id}`} className="no-underline">Book Now</Link>
+                          {isLoggedIn ? (
+                            <Link to={`/booking/${room._id}`} className="no-underline">Book Now</Link>
+                          ) : (
+                            <Link to={`/login-dialog`} className="no-underline">Book Now</Link>
+                          )}
                         </Button>
                       </CardContent>
                     </Card>

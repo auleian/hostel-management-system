@@ -121,7 +121,7 @@ export default function NewHostelPage() {
                   <Label htmlFor="name">Hostel Name *</Label>
                   <Input
                     id="name"
-                    placeholder="e.g., Green Valley Hostel"
+                    placeholder="Enter hostel name"
                     value={formData.name}
                     onChange={handleInputChange}
                     required
@@ -132,7 +132,7 @@ export default function NewHostelPage() {
                   <Label htmlFor="location">Location *</Label>
                   <Input
                     id="location"
-                    placeholder="e.g., University District, Campus Road"
+                    placeholder="e.g., Kikoni, Kampala"
                     value={formData.location}
                     onChange={handleInputChange}
                     required

@@ -2,11 +2,19 @@
 import { useState } from "react"
 import { Link } from "react-router-dom"
 import { Menu, X } from "lucide-react"
-import { LoginDialog } from "./login-dialog"
+import LoginDialog from "./login-dialog"
 import { SignupDialog } from "./signup-dialog"
+import { useAdminAuth } from "@/hooks/useAdminAuth"
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [loginOpen, setLoginOpen] = useState(false)
+  const [signupOpen, setSignupOpen] = useState(false)
+  const { checkingAdmin, checkAdminAccess } = useAdminAuth()
+
+  const handleAdminClick = () => {
+    checkAdminAccess(() => setLoginOpen(true))
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -44,15 +52,29 @@ export function Header() {
             <Link to="/about" className="text-sm font-medium text-black hover:text-primary transition-colors">
               About
             </Link>
-            <Link to="/admin" className="text-sm font-medium text-black hover:text-primary transition-colors">
-              Admin Portal
-            </Link>
+            <button
+              onClick={handleAdminClick}
+              className="text-sm font-medium text-black hover:text-primary transition-colors"
+              disabled={checkingAdmin}
+            >
+              {checkingAdmin ? 'Checking...' : 'Admin Portal'}
+            </button>
           </nav>
 
           {/* Auth Buttons */}
           <div className="hidden md:flex items-center gap-3">
-            <LoginDialog />
-            <SignupDialog />
+            <LoginDialog 
+              open={loginOpen} 
+              onOpenChange={setLoginOpen}
+              onOpenSignup={() => {
+                setLoginOpen(false)
+                setSignupOpen(true)
+              }}
+            />
+            <SignupDialog 
+              open={signupOpen} 
+              onOpenChange={setSignupOpen}
+            />
           </div>
 
           {/* Mobile Menu Button */}
@@ -86,17 +108,30 @@ export function Header() {
               >
                 About
               </Link>
-              <Link
-                to="/admin"
-                className="text-sm font-medium hover:text-primary transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false)
+                  handleAdminClick()
+                }}
+                className="text-sm font-medium hover:text-primary transition-colors text-left"
+                disabled={checkingAdmin}
               >
-                Admin Portal
-              </Link>
+                {checkingAdmin ? 'Checking...' : 'Admin Portal'}
+              </button>
             </nav>
             <div className="flex flex-col gap-2 pt-4 border-t">
-              <LoginDialog />
-              <SignupDialog />
+              <LoginDialog 
+                open={loginOpen} 
+                onOpenChange={setLoginOpen}
+                onOpenSignup={() => {
+                  setLoginOpen(false)
+                  setSignupOpen(true)
+                }}
+              />
+              <SignupDialog 
+                open={signupOpen} 
+                onOpenChange={setSignupOpen}
+              />
             </div>
           </div>
         )}

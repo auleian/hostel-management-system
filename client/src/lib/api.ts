@@ -32,6 +32,9 @@ api.interceptors.response.use(
             // Optionally redirect to login or show message
             // window.location.href = '/login';
         }
+        if (error.response?.status === 404) {
+            return Promise.reject(error);
+        }
         return Promise.reject(error);
     }
 );

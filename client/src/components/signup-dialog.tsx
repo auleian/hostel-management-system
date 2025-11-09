@@ -1,7 +1,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -16,8 +16,23 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { UserPlus } from "lucide-react"
 
-export function SignupDialog() {
-  const [open, setOpen] = useState(false)
+type SignupDialogProps = {
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+  showTrigger?: boolean
+}
+
+export function SignupDialog({ open, onOpenChange, showTrigger = true }: SignupDialogProps) {
+  const [internalOpen, setInternalOpen] = useState<boolean>(open ?? false)
+  
+  useEffect(() => {
+    if (open !== undefined) setInternalOpen(open)
+  }, [open])
+  
+  const handleOpenChange = (v: boolean) => {
+    if (onOpenChange) onOpenChange(v)
+    else setInternalOpen(v)
+  }
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -31,17 +46,19 @@ export function SignupDialog() {
     e.preventDefault()
     // TODO: Implement signup logic
     console.log("Signup:", formData)
-    setOpen(false)
+    handleOpenChange(false)
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button size="sm">
-          <UserPlus className="mr-2 h-4 w-4" />
-          Sign Up
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open ?? internalOpen} onOpenChange={handleOpenChange}>
+      {showTrigger && (
+        <DialogTrigger asChild>
+          <Button size="sm">
+            <UserPlus className="mr-2 h-4 w-4" />
+            Sign Up
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Create Account</DialogTitle>
@@ -52,7 +69,7 @@ export function SignupDialog() {
             <Label htmlFor="signup-name">Full Name</Label>
             <Input
               id="signup-name"
-              placeholder="John Doe"
+              placeholder="Enter your full name"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               required
@@ -63,7 +80,7 @@ export function SignupDialog() {
             <Input
               id="signup-email"
               type="email"
-              placeholder="student@university.edu"
+              placeholder="name@students.mak.ac.ug"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               required
@@ -97,7 +114,7 @@ export function SignupDialog() {
             <Input
               id="signup-password"
               type="password"
-              placeholder="••••••••"
+              placeholder="********"
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               required
@@ -108,7 +125,7 @@ export function SignupDialog() {
             <Input
               id="signup-confirm-password"
               type="password"
-              placeholder="••••••••"
+            placeholder="********"
               value={formData.confirmPassword}
               onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
               required
