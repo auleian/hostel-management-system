@@ -3,10 +3,8 @@ import { useEffect, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Header } from "@/components/header"
 import { HostelCard } from "@/components/hostel-card"
-import { mockHostels } from "../../lib/mock-data"
 import { Search } from "lucide-react"
-import api from '@/lib/api'
-import { useToast } from '@/hooks/use-toast'
+import { useHostelStore } from '@/stores/hostelStore'
 // @ts-ignore: importing an untyped JSX module (FeatureSection.jsx)
 import FeatureSection from "@/components/FeatureSection"
 import useInView from "@/hooks/useInView"
@@ -15,9 +13,7 @@ import { SignupDialog } from "@/components/signup-dialog"
 import { useAdminAuth } from "@/hooks/useAdminAuth"
 
 export default function HomePage() {
-  const { toast } = useToast()
-  const [hostels, setHostels] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
+  const { hostels, loading, fetchHostels } = useHostelStore()
 
   const sectionRef = useInView()
   const featuredHeaderRef = useInView()
@@ -32,39 +28,8 @@ export default function HomePage() {
   }
 
   useEffect(() => {
-    let ignore = false
-    const fetchHostels = async () => {
-      try {
-        setLoading(true)
-        const res = await api.get('/hostels')
-        const data = res.data || []
-        if (!ignore) {
-          if (Array.isArray(data) && data.length > 0) {
-            setHostels(data)
-          } else {
-            setHostels(mockHostels)
-            toast({
-              title: 'Showing sample data',
-              description: 'No hostels returned from server. Displaying mock listings.',
-            })
-          }
-        }
-      } catch (err:any) {
-        if (!ignore) {
-          setHostels(mockHostels)
-          toast({
-            title: 'Using mock data',
-            description: err.response?.data?.message || 'Failed to load hostels from backend.',
-            variant: 'destructive'
-          })
-        }
-      } finally {
-        if (!ignore) setLoading(false)
-      }
-    }
     fetchHostels()
-    return () => { ignore = true }
-  }, [toast])
+  }, [fetchHostels])
 
   const featuredHostels = hostels.slice(0, 6)
 
@@ -110,7 +75,7 @@ export default function HomePage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
               <Button asChild size="lg" className="text-base">
-                <Link className="text-white hover:text-white pop delay-150" to="/search">
+                <Link className="text-white hover:text-white pop delay-600" to="/search">
                   <Search className="mr-2 h-5 w-5 fade-up" />
                   Browse Hostels
                 </Link>
@@ -118,7 +83,7 @@ export default function HomePage() {
             <Button 
               size="lg" 
               variant="outline" 
-              className="text-base bg-transparent pop delay-150 text-black hover:text-white fade-up"
+              className="text-base bg-transparent pop delay-600 text-black hover:text-white fade-up"
               onClick={handleAdminClick}
               type="button"
               aria-busy={checkingAdmin}
@@ -137,7 +102,7 @@ export default function HomePage() {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h2 className="text-3xl font-bold text-balance pop delay-150">Featured Hostels</h2>
+              <h2 className="text-3xl font-bold text-balance pop delay-600">Featured Hostels</h2>
               <p className="text-muted-foreground mt-2 fade-up delay-400 will-change-transform">Popular choices among students</p>
             </div>
             <Button asChild variant="outline">
@@ -148,16 +113,8 @@ export default function HomePage() {
             <div className="py-12 text-center text-muted-foreground fade-up delay-800">Loading hostels...</div>
           ) : (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {featuredHostels.map((hostel:any, index:number) => (
-                <div 
-                  key={hostel._id} 
-                  className="fade-up-smooth"
-                  style={{ 
-                    '--anim-delay': `${800 + (index * 200)}ms`
-                  } as React.CSSProperties}
-                >
-                  <HostelCard hostelId={hostel._id} />
-                </div>
+              {featuredHostels.map((hostel:any) => (
+                <HostelCard key={hostel._id} hostelId={hostel._id} />
               ))}
             </div>
           )}
@@ -167,12 +124,12 @@ export default function HomePage() {
       {/* CTA Section */}
       <section className="py-16 bg-primary text-primary-foreground">
         <div ref={ctaSectionRef as any}  className="container mx-auto px-4 text-center space-y-6 fade-up">
-          <h2 className="text-3xl md:text-4xl font-bold text-balance pop delay-150">Are You a Hostel Owner?</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-balance pop delay-600">Are You a Hostel Owner?</h2>
           <p className="text-lg text-primary-foreground/90 max-w-2xl mx-auto text-pretty fade-up delay-200 will-change-transform">
             List your hostel on HostelHub and reach thousands of students looking for accommodation. Manage bookings,
             rooms, and payments all in one place.
           </p>
-          <Button className="pop delay-150" asChild size="lg" variant="secondary">
+          <Button className="pop delay-600" asChild size="lg" variant="secondary">
             <Link className="text-white hover:text-white fade-up" to="/admin">Get Started as Admin</Link>
           </Button>
         </div>

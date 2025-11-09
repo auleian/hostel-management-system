@@ -1,19 +1,45 @@
 
 import { useState } from "react"
 import { Link } from "react-router-dom"
-import { Menu, X } from "lucide-react"
+import { Menu, X, LogOut, LayoutDashboard } from "lucide-react"
 import LoginDialog from "./login-dialog"
 import { SignupDialog } from "./signup-dialog"
 import { useAdminAuth } from "@/hooks/useAdminAuth"
+import { useAuthContext } from "@/contexts/AuthContext"
+import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [loginOpen, setLoginOpen] = useState(false)
   const [signupOpen, setSignupOpen] = useState(false)
   const { checkingAdmin, checkAdminAccess } = useAdminAuth()
+  const { user, setAuth } = useAuthContext()
 
   const handleAdminClick = () => {
     checkAdminAccess(() => setLoginOpen(true))
+  }
+
+  const handleLogout = () => {
+    setAuth({ user: null, token: null })
+    setMobileMenuOpen(false)
+  }
+
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2)
   }
 
   return (
@@ -63,18 +89,54 @@ export function Header() {
 
           {/* Auth Buttons */}
           <div className="hidden md:flex items-center gap-3">
-            <LoginDialog 
-              open={loginOpen} 
-              onOpenChange={setLoginOpen}
-              onOpenSignup={() => {
-                setLoginOpen(false)
-                setSignupOpen(true)
-              }}
-            />
-            <SignupDialog 
-              open={signupOpen} 
-              onOpenChange={setSignupOpen}
-            />
+            {!user ? (
+              <>
+                <LoginDialog 
+                  open={loginOpen} 
+                  onOpenChange={setLoginOpen}
+                  onOpenSignup={() => {
+                    setLoginOpen(false)
+                    setSignupOpen(true)
+                  }}
+                />
+                <SignupDialog 
+                  open={signupOpen} 
+                  onOpenChange={setSignupOpen}
+                />
+              </>
+            ) : (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                    <Avatar className="h-10 w-10">
+                      <AvatarFallback className="bg-primary text-primary-foreground">
+                        {getInitials(user.name)}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">{user.name}</p>
+                      <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link to="/admin" className="cursor-pointer">
+                      <LayoutDashboard className="mr-2 h-4 w-4" />
+                      <span>Dashboard</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -120,18 +182,55 @@ export function Header() {
               </button>
             </nav>
             <div className="flex flex-col gap-2 pt-4 border-t">
-              <LoginDialog 
-                open={loginOpen} 
-                onOpenChange={setLoginOpen}
-                onOpenSignup={() => {
-                  setLoginOpen(false)
-                  setSignupOpen(true)
-                }}
-              />
-              <SignupDialog 
-                open={signupOpen} 
-                onOpenChange={setSignupOpen}
-              />
+              {!user ? (
+                <>
+                  <LoginDialog 
+                    open={loginOpen} 
+                    onOpenChange={setLoginOpen}
+                    onOpenSignup={() => {
+                      setLoginOpen(false)
+                      setSignupOpen(true)
+                    }}
+                  />
+                  <SignupDialog 
+                    open={signupOpen} 
+                    onOpenChange={setSignupOpen}
+                  />
+                </>
+              ) : (
+                <>
+                  {/* User Info */}
+                  <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-muted/50">
+                    <Avatar className="h-10 w-10">
+                      <AvatarFallback className="bg-primary text-primary-foreground">
+                        {getInitials(user.name)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex flex-col">
+                      <p className="text-sm font-medium">{user.name}</p>
+                      <p className="text-xs text-muted-foreground">{user.email}</p>
+                    </div>
+                  </div>
+                  
+                  {/* Mobile Menu Links */}
+                  <Link
+                    to="/admin"
+                    className="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg hover:bg-accent hover:text-accent-foreground transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <LayoutDashboard className="h-4 w-4" />
+                    Dashboard
+                  </Link>
+                  
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg hover:bg-accent hover:text-accent-foreground transition-colors text-red-600 w-full text-left"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Log out
+                  </button>
+                </>
+              )}
             </div>
           </div>
         )}

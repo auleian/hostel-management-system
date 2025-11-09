@@ -10,12 +10,12 @@ export const register = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
 
-  const { name, email, password, university, contact, nextOfKin } = req.body;
+  const { name, email, password, university, contact, nextOfKin, userType } = req.body;
   try {
     let user = await User.findOne({ email });
     if (user) return res.status(400).json({ msg: 'User already exists' });
-
-    user = new User({ name, email, password, university, contact, nextOfKin });
+    
+    user = new User({ name, email, password, university, contact, nextOfKin, userType });
     await user.save();
 
     const token = generateToken(user._id);
@@ -67,7 +67,7 @@ export const login = async (req, res) => {
 
     res.json({
       token,
-      user: { id: user._id, name: user.name, email: user.email }
+      user: { id: user._id, name: user.name, email: user.email, phone: user.contact, role: user.userType }
     });
   } catch (err) {
     console.error(err);
