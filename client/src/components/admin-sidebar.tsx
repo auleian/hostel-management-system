@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom"
 import { cn } from "@/lib/utils"
-import { LayoutDashboard, Building2, Bed, Calendar, Settings, LogOut, Menu, X } from "lucide-react"
+import { LayoutDashboard, Building2, Bed, Calendar, Settings, LogOut, Menu, X, HomeIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import { useAuthContext } from "@/contexts/AuthContext"
@@ -8,6 +8,7 @@ import { useAuthContext } from "@/contexts/AuthContext"
 
 const navigation = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
+  { name: "Home", href: "/", icon: HomeIcon },
   { name: "Hostels", href: "/admin/hostels", icon: Building2 },
   { name: "Rooms", href: "/admin/rooms", icon: Bed },
   { name: "Bookings", href: "/admin/bookings", icon: Calendar },
