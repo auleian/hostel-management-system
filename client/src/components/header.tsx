@@ -93,16 +93,7 @@ export function Header() {
             >
               {checkingAdmin ? 'Checking...' : 'Admin Portal'}
             </button>
-            <button
-              onClick={() => {
-                setMobileMenuOpen(false)
-                handleAdminClick()
-              }}
-              className="text-sm font-medium text-black hover:text-primary transition-colors"
-              disabled={checkingAdmin}
-            >
-              {checkingAdmin ? 'Checking...' : 'Admin Portal'}
-            </button>
+            
           </nav>
 
           {/* Auth Buttons */}
