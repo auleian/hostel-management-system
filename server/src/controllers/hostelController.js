@@ -2,6 +2,40 @@ import Hostel from '../models/hostelModel.js'
 import mongoose from 'mongoose'
 import Room from '../models/roomModel.js'
 
+const normalizeAmenityValue = (val) => {
+  if (!val && val !== 0) return null;
+  const v = String(val).toLowerCase().trim();
+  if (v.includes('shuttle')) return 'shuttle';
+  if (v === 'wifi') return 'wifi';
+  if (v === 'security') return 'security';
+  if (v === 'parking') return 'parking';
+  if (v === 'library') return 'library';
+  if (v === 'laundry') return 'laundry';
+  // if already a short id, just return it
+  return v;
+}
+
+const normalizeAmenities = (raw) => {
+  if (raw == null) return [];
+  let arr = [];
+  if (Array.isArray(raw)) {
+    arr = raw;
+  } else if (typeof raw === 'string') {
+    try {
+      const parsed = JSON.parse(raw);
+      arr = Array.isArray(parsed) ? parsed : [parsed];
+    } catch {
+      arr = [raw];
+    }
+  } else {
+    arr = [raw];
+  }
+
+  return arr
+    .map(a => normalizeAmenityValue(a))
+    .filter(Boolean);
+}
+
 
 //get all hostels
 export const getHostels = async (req, res) => {
@@ -59,7 +93,7 @@ export const addHostel = async (req, res) => {
     availableRooms: req.body.availableRooms,
     description: req.body.description,
     rules: req.body.rules,
-    amenities: req.body.amenities,
+    amenities: normalizeAmenities(req.body.amenities),
     genderPolicy: req.body.genderPolicy,
     contactInfo: req.body.contactInfo,
     priceRange: {
@@ -75,6 +109,7 @@ export const addHostel = async (req, res) => {
     res.status(400).json({ message: error.message })
   }
 }
+
 
 //function to update a hostel
 export const updateHostel = async (req, res) => {
@@ -110,10 +145,10 @@ export const updateHostel = async (req, res) => {
       res.hostel.rules = req.body.rules;
     }
     if (req.body.amenities != null) {
-      const amenities = typeof req.body.amenities === 'string'
-        ? (() => { try { return JSON.parse(req.body.amenities); } catch { return [req.body.amenities]; } })()
+      const raw = typeof req.body.amenities === 'string'
+        ? (() => { try { return JSON.parse(req.body.amenities); } catch { return req.body.amenities; } })()
         : req.body.amenities;
-      res.hostel.amenities = amenities;
+      res.hostel.amenities = normalizeAmenities(raw);
     }
     if (req.body.genderPolicy != null) {
       res.hostel.genderPolicy = req.body.genderPolicy;

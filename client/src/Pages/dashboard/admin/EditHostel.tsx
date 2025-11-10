@@ -111,7 +111,7 @@ const EditHostel = () => {
     } else if (name === 'availableRooms') {
       setHostelData(prev => ({
         ...prev,
-        [name]: parseInt(value) || 0
+        [name]: value === '' ? 0 : parseInt(value)
       }));
     } else {
       setHostelData((prev) => ({
@@ -192,7 +192,7 @@ const EditHostel = () => {
       formData.append('location', hostelData.location);
       formData.append('genderPolicy', hostelData.genderPolicy);
       formData.append('rules', hostelData.rules || '');
-      formData.append('availableRooms', hostelData.availableRooms.toString());
+      formData.append('availableRooms', String(hostelData.availableRooms));
       formData.append('contactInfo', hostelData.contactInfo || '');
 
       // Add price range

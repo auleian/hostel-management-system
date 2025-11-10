@@ -29,7 +29,7 @@ const hostelSchema = new mongoose.Schema ({
     },
     amenities: {
         type: [String],
-        enum: ['hostel shuttle', 'wifi', 'security','parking', 'library']
+        enum: ['shuttle', 'wifi', 'security','parking', 'library', 'laundry']
     },
     genderPolicy: {
         type: String,

@@ -63,14 +63,25 @@ export default function NewHostelPage() {
     setIsSubmitting(true)
 
     try {
+      // Validate amenities against server-accepted values
+      const allowedAmenities = ['shuttle', 'wifi', 'security', 'parking', 'library', 'laundry']
+      const invalid = formData.amenities.filter(a => !allowedAmenities.includes(a))
+      if (invalid.length) {
+        toast.error('Some selected amenities are not supported and will be ignored: ' + invalid.join(', '))
+      }
+      const amenitiesToSubmit = formData.amenities.filter(a => allowedAmenities.includes(a))
       const form = new FormData()
+      // Append non-array fields
       Object.entries(formData).forEach(([key, value]) => {
+        if (key === 'amenities') return // we'll append amenities explicitly
         if (Array.isArray(value)) {
           value.forEach((v) => form.append(key, v))
         } else {
           form.append(key, value as any)
         }
       })
+      // Append validated amenities
+      amenitiesToSubmit.forEach(a => form.append('amenities', a))
       images.forEach((img) => form.append("images", img))
 
       const response = await api.post("/hostels", form, {

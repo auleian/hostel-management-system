@@ -2,8 +2,11 @@ import express from 'express';
 import { check } from 'express-validator';
 import {
   register,
-  login
+  login,
+  me,
+  checkAdmin
 } from '../controllers/authController.js';
+import { protect } from '../middleware/auth.js';
 
 
 const router = express.Router();
@@ -15,10 +18,7 @@ router.post(
     check('name', 'Name is required').notEmpty(),
     check('email', 'Please include a valid email').isEmail(),
     check('password', 'Password must be 6+ characters').isLength({ min: 6 }),
-    check('university', 'University is required').notEmpty(),
-    check('contact', 'Contact is required').notEmpty(),
-    check('nextOfKin.name', 'Next of kin name is required').notEmpty(),
-    check('nextOfKin.contact', 'Next of kin contact is required').notEmpty()
+    // simplified: only require name/email/password on register; other fields are optional
   ],
   register
 );
@@ -31,5 +31,11 @@ router.post(
   ],
   login
 );
+
+// current user
+router.get('/me', protect, me);
+
+// check admin flag
+router.get('/check-admin', protect, checkAdmin);
 
 export default router;

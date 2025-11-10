@@ -14,17 +14,24 @@ const api = axios.create({
 // Request interceptor
 api.interceptors.request.use(
     (config) => {
-        // Get token from auth context storage
-        const authData = localStorage.getItem('auth');
-        if (authData) {
+        // Example: Attach token
+        // Support two storage shapes: a simple 'token' key or an 'auth' JSON blob used by the context
+        let token = localStorage.getItem('token');
+        if (!token) {
             try {
-                const { token } = JSON.parse(authData);
-                if (token) {
-                    config.headers.Authorization = `Bearer ${token}`;
+                const authRaw = localStorage.getItem('auth');
+                if (authRaw) {
+                    const parsed = JSON.parse(authRaw);
+                    token = parsed?.token || null;
                 }
-            } catch (error) {
-                console.error('Failed to parse auth data:', error);
+            } catch (e) {
+                token = null;
             }
+        }
+
+        if (token) {
+            config.headers = config.headers || {};
+            config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
     },

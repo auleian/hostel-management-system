@@ -6,6 +6,7 @@ import { Building2, MapPin, Users, Plus, Search, Edit, Trash2 } from "lucide-rea
 import { Link, useNavigate } from "react-router-dom"
 import { AdminLayout } from "@/components/AdminLayout"
 import { useState, useEffect, useCallback } from "react"
+import api from '@/lib/api'
 import { Hostel } from "@/lib/types"
 import { useAuth } from "@/hooks/useAuth"
 
@@ -27,16 +28,8 @@ export default function HostelsPage() {
       try {
         setLoading(true)
         setError(null)
-
-        const url = new URL(`${apiBaseUrl}/hostels?_t=${Date.now()}`, window.location.origin)
-        if (query) url.searchParams.set("name", query)
-
-        const res = await fetch(url.toString(), {
-          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-        })
-        if (!res.ok) throw new Error("Failed to load hostels")
-
-        const data: Hostel[] = await res.json()
+        const res = await api.get('/hostels', { params: { name: query || undefined, _t: Date.now() } })
+        const data: Hostel[] = res.data
         setHostels(data)
       } catch (err) {
         setError((err as Error).message)
@@ -47,9 +40,11 @@ export default function HostelsPage() {
     [apiBaseUrl, token],
   )
 
-    useEffect(() => {
+  useEffect(() => {
     if (!user) return
-    if (user.role !== "admin") {
+    const role = (user as any).userType ?? (user as any).role ?? (user as any).type
+    if (role !== "admin") {
+      // send non-admin users back to the main site
       navigate("/")
       return
     }
@@ -79,14 +74,8 @@ export default function HostelsPage() {
     if (!confirmed) return
 
     try {
-      const res = await fetch(`${apiBaseUrl}/hostels/${id}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-      })
-      if (!res.ok) throw new Error("Failed to delete hostel")
+      const res = await api.delete(`/hostels/${id}`)
+      if (res.status >= 400) throw new Error("Failed to delete hostel")
       setHostels(prev => prev.filter(hostel => hostel._id !== id))
     } catch (err) {
       setError((err as Error).message)

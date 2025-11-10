@@ -4,18 +4,20 @@ import User from "../models/User.js";
 
 
 const generateToken = (id) =>
-  jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+  // fallback secret for local development to avoid crashes when env var is missing
+  jwt.sign({ id }, process.env.JWT_SECRET || 'dev_jwt_secret', { expiresIn: '7d' });
 
 export const register = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
 
-  const { name, email, password, university, contact, nextOfKin, userType } = req.body;
+  const { name, email, password , contact, userType } = req.body;
   try {
     let user = await User.findOne({ email });
     if (user) return res.status(400).json({ msg: 'User already exists' });
-    
-    user = new User({ name, email, password, university, contact, nextOfKin, userType });
+
+  // map incoming `contact` to the User schema's `telephone` field
+  user = new User({ name, email, password, telephone: contact, userType: userType || 'student' });
     await user.save();
 
     const token = generateToken(user._id);
@@ -31,13 +33,7 @@ export const register = async (req, res) => {
 
     res.status(201).json({
       token,
-      user: { id: user._id, 
-        name: user.name, email: 
-        user.email, 
-        university: user.university,
-        contact: user.contact,
-        nextOfKin: user.nextOfKin
-      }
+      user: { id: user._id, name: user.name, email: user.email, telephone: user.telephone, userType: user.userType }
     });
   } catch (err) {
     console.error(err);
@@ -67,8 +63,39 @@ export const login = async (req, res) => {
 
     res.json({
       token,
-      user: { id: user._id, name: user.name, email: user.email, phone: user.contact, role: user.userType }
+      user: { id: user._id, name: user.name, email: user.email, userType: user.userType }
     });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server error');
+  }
+};
+
+export const me = async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) return res.status(404).json({ msg: 'User not found' });
+    const user = await User.findById(userId).select('-password');
+    if (!user) return res.status(404).json({ msg: 'User not found' });
+    // Prevent caches or proxies from returning 304/empty bodies for auth endpoints
+    res.set('Cache-Control', 'no-store');
+    res.json(user);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server error');
+  }
+};
+
+export const checkAdmin = async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) return res.status(404).json({ isAdmin: false });
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ isAdmin: false });
+    const isAdmin = user.userType === 'admin' || user.isAdmin === true;
+    // Prevent caches or proxies from returning 304/empty bodies for auth endpoints
+    res.set('Cache-Control', 'no-store');
+    res.json({ isAdmin });
   } catch (err) {
     console.error(err);
     res.status(500).send('Server error');
