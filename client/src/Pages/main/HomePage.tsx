@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom"
 import { useEffect, useState } from 'react'
+import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Header } from "@/components/header"
 import { HostelCard } from "@/components/hostel-card"
@@ -11,6 +12,7 @@ import useInView from "@/hooks/useInView"
 import LoginDialog from "@/components/login-dialog"
 import { SignupDialog } from "@/components/signup-dialog"
 import { useAdminAuth } from "@/hooks/useAdminAuth"
+import { useAuthContext } from "@/contexts/AuthContext"
 
 export default function HomePage() {
   const { hostels, loading, fetchHostels } = useHostelStore()
@@ -23,7 +25,14 @@ export default function HomePage() {
   const [showSignupDialog, setShowSignupDialog] = useState(false)
   const { checkingAdmin, checkAdminAccess } = useAdminAuth()
 
+  const {user, token} = useAuthContext()
+  const navigate = useNavigate()
+
   const handleAdminClick = () => {
+    if (user && token) {
+      navigate('/admin')
+      return
+    }
     checkAdminAccess(() => setShowLoginDialog(true))
   }
 
@@ -80,16 +89,16 @@ export default function HomePage() {
                   Browse Hostels
                 </Link>
               </Button>
-            <Button 
-              size="lg" 
-              variant="outline" 
-              className="text-base bg-transparent pop delay-600 text-black hover:text-white fade-up"
-              onClick={handleAdminClick}
-              type="button"
-              aria-busy={checkingAdmin}
-            >
-              {checkingAdmin ? 'Checking...' : 'Admin Portal'}
-            </Button>
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="text-base bg-transparent pop delay-600 text-black hover:text-white fade-up"
+                onClick={handleAdminClick}
+                type="button"
+                aria-busy={checkingAdmin} >
+                {checkingAdmin ? 'Checking...' : 'Admin Portal'}
+              </Button>
+
             </div>
           </div>
         </div>
