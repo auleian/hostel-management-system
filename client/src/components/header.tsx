@@ -1,6 +1,6 @@
 
 import { useState } from "react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { Menu, X, LogOut, LayoutDashboard } from "lucide-react"
 import LoginDialog from "./login-dialog"
 import { SignupDialog } from "./signup-dialog"
@@ -22,9 +22,17 @@ export function Header() {
   const [loginOpen, setLoginOpen] = useState(false)
   const [signupOpen, setSignupOpen] = useState(false)
   const { checkingAdmin, checkAdminAccess } = useAdminAuth()
-  const { user, setAuth } = useAuthContext()
+  const { user, token, setAuth } = useAuthContext()
+  const navigate = useNavigate()
 
   const handleAdminClick = () => {
+    //if the user is already authenticated, go straight to the admin dashboard.
+    //otherwise, run the existing admin-check.. which will open the login dialog.
+    if (user && token) {
+      setMobileMenuOpen(false)
+      navigate('/admin')
+      return
+    }
     checkAdminAccess(() => setLoginOpen(true))
   }
 
@@ -80,6 +88,16 @@ export function Header() {
             </Link>
             <button
               onClick={handleAdminClick}
+              className="text-sm font-medium text-black hover:text-primary transition-colors"
+              disabled={checkingAdmin}
+            >
+              {checkingAdmin ? 'Checking...' : 'Admin Portal'}
+            </button>
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false)
+                handleAdminClick()
+              }}
               className="text-sm font-medium text-black hover:text-primary transition-colors"
               disabled={checkingAdmin}
             >
