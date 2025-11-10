@@ -1,7 +1,7 @@
 import request from 'supertest';
 import express from 'express';
 import mongoose from 'mongoose';
-import hostelRoutes from '../Routes/hostelRoutes.js';
+import hostelRoutes from '@/Routes/hostelRoutes.js';
 import Hostel from '../models/hostelModel.js';
 import path from 'path';
 
