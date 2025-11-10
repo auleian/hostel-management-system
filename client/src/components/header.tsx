@@ -1,6 +1,6 @@
 
 import { useState } from "react"
-import { Link, useLocation } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { Menu, X, LogOut, LayoutDashboard } from "lucide-react"
 import LoginDialog from "./login-dialog"
 import { SignupDialog } from "./signup-dialog"
@@ -22,16 +22,17 @@ export function Header() {
   const [loginOpen, setLoginOpen] = useState(false)
   const [signupOpen, setSignupOpen] = useState(false)
   const { checkingAdmin, checkAdminAccess } = useAdminAuth()
-  const { user, setAuth } = useAuthContext()
-  const location = useLocation()
-  const pathname = location.pathname
-
-  const isActive = (path: string) => {
-    if (path === '/') return pathname === '/'
-    return pathname === path || pathname.startsWith(path)
-  }
+  const { user, token, setAuth } = useAuthContext()
+  const navigate = useNavigate()
 
   const handleAdminClick = () => {
+    //if the user is already authenticated, go straight to the admin dashboard.
+    //otherwise, run the existing admin-check.. which will open the login dialog.
+    if (user && token) {
+      setMobileMenuOpen(false)
+      navigate('/admin')
+      return
+    }
     checkAdminAccess(() => setLoginOpen(true))
   }
 
@@ -76,51 +77,31 @@ export function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-6">
-            <Link
-              to="/"
-              className={`text-sm font-medium transition-colors ${isActive('/') ? 'text-primary' : 'text-black hover:text-primary'}`}
-            >
-              <span>Home</span>
-              {/* small rounded indicator */}
-              {isActive('/') ? (
-                <span className="block h-0.5 w-8 bg-green-600 rounded-full mt-1 mx-auto" />
-              ) : (
-                <span className="block h-0.5 w-8 mt-1 mx-auto opacity-0" />
-              )}
+            <Link to="/" className="text-sm font-medium text-black hover:text-primary transition-colors">
+              Home
             </Link>
-            <Link
-              to="/search"
-              className={`text-sm font-medium transition-colors ${isActive('/search') ? 'text-primary' : 'text-black hover:text-primary'}`}
-            >
-              <span>Search Hostels</span>
-              {isActive('/search') ? (
-                <span className="block h-0.5 w-8 bg-green-600 rounded-full mt-1 mx-auto" />
-              ) : (
-                <span className="block h-0.5 w-8 mt-1 mx-auto opacity-0" />
-              )}
+            <Link to="/search" className="text-sm font-medium text-black hover:text-primary transition-colors">
+              Search Hostels
             </Link>
-            <Link
-              to="/about"
-              className={`text-sm font-medium transition-colors ${isActive('/about') ? 'text-primary' : 'text-black hover:text-primary'}`}
-            >
-              <span>About</span>
-              {isActive('/about') ? (
-                <span className="block h-0.5 w-8 bg-green-600 rounded-full mt-1 mx-auto" />
-              ) : (
-                <span className="block h-0.5 w-8 mt-1 mx-auto opacity-0" />
-              )}
+            <Link to="/about" className="text-sm font-medium text-black hover:text-primary transition-colors">
+              About
             </Link>
             <button
               onClick={handleAdminClick}
-              className={`text-sm font-medium transition-colors flex flex-col items-center ${isActive('/admin') ? 'text-primary' : 'text-black hover:text-primary'}`}
+              className="text-sm font-medium text-black hover:text-primary transition-colors"
               disabled={checkingAdmin}
             >
-              <span>{checkingAdmin ? 'Checking...' : 'Admin Portal'}</span>
-              {isActive('/admin') ? (
-                <span className="block h-0.5 w-8 bg-green-600 rounded-full mt-1" />
-              ) : (
-                <span className="block h-0.5 w-8 mt-1 opacity-0" />
-              )}
+              {checkingAdmin ? 'Checking...' : 'Admin Portal'}
+            </button>
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false)
+                handleAdminClick()
+              }}
+              className="text-sm font-medium text-black hover:text-primary transition-colors"
+              disabled={checkingAdmin}
+            >
+              {checkingAdmin ? 'Checking...' : 'Admin Portal'}
             </button>
           </nav>
 
@@ -161,16 +142,9 @@ export function Header() {
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link to="/admin" className={`cursor-pointer flex flex-col items-start ${isActive('/admin') ? 'text-primary' : ''}`}>
-                      <div className="flex items-center">
-                        <LayoutDashboard className="mr-2 h-4 w-4" />
-                        <span>Dashboard</span>
-                      </div>
-                      {isActive('/admin') ? (
-                        <span className="block h-0.5 w-8 bg-green-600 rounded-full mt-1" />
-                      ) : (
-                        <span className="block h-0.5 w-8 mt-1 opacity-0" />
-                      )}
+                    <Link to="/admin" className="cursor-pointer">
+                      <LayoutDashboard className="mr-2 h-4 w-4" />
+                      <span>Dashboard</span>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
@@ -195,54 +169,34 @@ export function Header() {
             <nav className="flex flex-col gap-4">
               <Link
                 to="/"
-                className={`text-sm font-medium transition-colors flex flex-col items-center ${isActive('/') ? 'text-primary' : 'hover:text-primary'}`}
+                className="text-sm font-medium hover:text-primary transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                <span>Home</span>
-                {isActive('/') ? (
-                  <span className="block h-0.5 w-8 bg-green-600 rounded-full mt-1" />
-                ) : (
-                  <span className="block h-0.5 w-8 mt-1 opacity-0" />
-                )}
+                Home
               </Link>
               <Link
                 to="/search"
-                className={`text-sm font-medium transition-colors flex flex-col items-center ${isActive('/search') ? 'text-primary' : 'hover:text-primary'}`}
+                className="text-sm font-medium hover:text-primary transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                <span>Search Hostels</span>
-                {isActive('/search') ? (
-                  <span className="block h-0.5 w-8 bg-green-600 rounded-full mt-1" />
-                ) : (
-                  <span className="block h-0.5 w-8 mt-1 opacity-0" />
-                )}
+                Search Hostels
               </Link>
               <Link
                 to="/about"
-                className={`text-sm font-medium transition-colors flex flex-col items-center ${isActive('/about') ? 'text-primary' : 'hover:text-primary'}`}
+                className="text-sm font-medium hover:text-primary transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                <span>About</span>
-                {isActive('/about') ? (
-                  <span className="block h-0.5 w-8 bg-green-600 rounded-full mt-1" />
-                ) : (
-                  <span className="block h-0.5 w-8 mt-1 opacity-0" />
-                )}
+                About
               </Link>
               <button
                 onClick={() => {
                   setMobileMenuOpen(false)
                   handleAdminClick()
                 }}
-                className={`text-sm font-medium transition-colors flex flex-col items-center text-left ${isActive('/admin') ? 'text-primary' : 'hover:text-primary'}`}
+                className="text-sm font-medium hover:text-primary transition-colors text-left"
                 disabled={checkingAdmin}
               >
-                <span>{checkingAdmin ? 'Checking...' : 'Admin Portal'}</span>
-                {isActive('/admin') ? (
-                  <span className="block h-0.5 w-8 bg-green-600 rounded-full mt-1" />
-                ) : (
-                  <span className="block h-0.5 w-8 mt-1 opacity-0" />
-                )}
+                {checkingAdmin ? 'Checking...' : 'Admin Portal'}
               </button>
             </nav>
             <div className="flex flex-col gap-2 pt-4 border-t">
