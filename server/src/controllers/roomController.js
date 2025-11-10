@@ -63,3 +63,41 @@ export const getRoom = async (req, res) => {
         res.status(500).json({ message: error.message })
     }
 }
+
+export const updateRoom = async (req, res) => {
+    try {
+        const room = await Room.findById(req.params.id)
+        if (!room) {
+            return res.status(404).json({ message: 'Room not found' })
+        }
+        // Update fields
+        room.roomNumber = req.body.roomNumber || room.roomNumber
+        room.roomType = req.body.roomType || room.roomType
+        room.moreInfo = req.body.moreInfo || room.moreInfo
+        room.price = req.body.price || room.price
+        room.isAvailable = req.body.isAvailable !== undefined ? req.body.isAvailable : room.isAvailable
+        room.hostel = req.body.hostel || room.hostel
+        room.isSelfContained = req.body.isSelfContained !== undefined ? req.body.isSelfContained : room.isSelfContained
+        room.amenities = req.body.amenities || room.amenities
+        // Handle images
+        const uploadedImages = req.files ? req.files.map(file => file.filename) : [];
+        let existingImages = room.images || [];
+
+        if (req.body.existingImages) {
+            try {
+                const parsedImages = JSON.parse(req.body.existingImages);
+                existingImages = Array.isArray(parsedImages) ? parsedImages : [parsedImages];
+            } catch {
+                existingImages = Array.isArray(req.body.existingImages)
+                    ? req.body.existingImages
+                    : [req.body.existingImages];
+            }
+        }
+
+        room.images = [...existingImages, ...uploadedImages];
+        const updatedRoom = await room.save()
+        res.json(updatedRoom)
+    } catch (error) {
+        res.status(400).json({ message: error.message })
+    }
+}
