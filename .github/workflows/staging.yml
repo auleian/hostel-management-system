@@ -3,7 +3,7 @@ name: Build and Push Docker Image
 on:
   push:
     branches:
-      - ft-pipelines
+      - dev
 
 jobs:
   build:
@@ -34,7 +34,3 @@ jobs:
           file: ./server/Dockerfile
           push: true
           tags: nessimntambi/hostelmanagementapi:dev
-          # build-args: |
-          #     NODE_ENV=production
-          #     JWT_SECRET=${{secrets.JWT_SECRET}}
-          #     MONGODB_URI=${{secrets.MONGODB_URI}}
