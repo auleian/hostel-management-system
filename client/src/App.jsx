@@ -12,7 +12,7 @@ import BookingDetailPage from './Pages/main/BookingDetailPage';
 // Admin
 import ManageHostelsPage from './Pages/dashboard/admin/ManageHostels'
 import NewHostelPage from './Pages/dashboard/admin/NewHostel'
-import EditHostel from './Pages/dashboard/Admin/EditHostel'
+import EditHostel from './Pages/dashboard/admin/EditHostel'
 import Settings from './Pages/dashboard/admin/Settings'
 
 import AdminHomePage from './Pages/dashboard/HomePage'
