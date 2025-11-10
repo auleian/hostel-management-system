@@ -1,9 +1,6 @@
 name: Build and Push Docker Image
 
 on:
-  pull_request:
-    branches:
-      - dev
   push:
     branches:
       - ft-pipelines
@@ -22,22 +19,22 @@ jobs:
       - name: Build and push frontend image
         uses: docker/build-push-action@v2
         with:
-          context: .
-          file: ./server/Dockerfile
+          context: ./client
+          file: ./client/Dockerfile
           push: true
-          tags: nessimntambi/hostelmanagementapi:dev
-        #   build-args: |
-        #     NODE_ENV=production
+          tags: nessimntambi/hostelmanagement:dev
+          build-args: |
+            NODE_ENV=production
         #     VITE_API_BASE_URL=${{secrets.VITE_API_BASE_URL}}
 
       - name: Build and push api image
         uses: docker/build-push-action@v2
         with:
-            context: .
-            file: ./client/Dockerfile
-            push: true
-            tags: nessimntambi/hostelmanagement:dev
-            # build-args: |
-            #     NODE_ENV=production
-            #     JWT_SECRET=${{secrets.JWT_SECRET}}
-            #     MONGODB_URI=${{secrets.MONGODB_URI}}
+          context: ./server
+          file: ./server/Dockerfile
+          push: true
+          tags: nessimntambi/hostelmanagementapi:dev
+          # build-args: |
+          #     NODE_ENV=production
+          #     JWT_SECRET=${{secrets.JWT_SECRET}}
+          #     MONGODB_URI=${{secrets.MONGODB_URI}}
