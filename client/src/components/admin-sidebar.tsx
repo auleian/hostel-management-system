@@ -3,6 +3,8 @@ import { cn } from "@/lib/utils"
 import { LayoutDashboard, Building2, Bed, Calendar, Settings, LogOut, Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
+import { useAuthContext } from "@/contexts/AuthContext"
+
 
 const navigation = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
@@ -16,6 +18,7 @@ export function AdminSidebar() {
   const location = useLocation()
   const pathname = location.pathname
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const {user} = useAuthContext()
 
   return (
     <>
@@ -90,11 +93,11 @@ export function AdminSidebar() {
           <div className="px-4 py-4 border-t border-sidebar-border">
             <div className="flex items-center gap-3 px-4 py-3 mb-2">
               <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <span className="text-sm font-semibold text-primary">AD</span>
+                <span className="text-sm font-semibold text-primary">{user?.name?.slice(0, 2).toUpperCase()}</span>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-sidebar-foreground truncate">Admin User</p>
-                <p className="text-xs text-muted-foreground truncate">admin@hostelhub.com</p>
+                <p className="text-sm font-medium text-sidebar-foreground truncate">{user?.name}</p>
+                <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
               </div>
             </div>
             <Button

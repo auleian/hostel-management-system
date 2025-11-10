@@ -7,6 +7,7 @@ import { MapPin, Phone, Users, Wifi, Shield, Car, BookOpen, Bus, ArrowLeft, Bed 
 import { useState, useEffect } from "react"
 import { Hostel, Room } from "@/lib/types"
 import api from "@/lib/api"
+import { useAuthContext } from "@/contexts/AuthContext"
 
 
 const amenityIcons = {
@@ -25,14 +26,14 @@ export default function HostelDetailPage() {
   const [rooms, setRooms] = useState<Room[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const isLoggedIn = Boolean(localStorage.getItem('token'))
+
+  const { user } = useAuthContext()
+
+  const isLoggedIn = Boolean(user)
 
   useEffect(() => {
     const fetchHostelData = async () => {
       if (!id) return
-
-
-
       try {
         setLoading(true)
         setError(null)

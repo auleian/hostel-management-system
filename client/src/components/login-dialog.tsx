@@ -25,6 +25,7 @@ type LoginDialogProps = {
 
 export default function LoginDialog({ open, onOpenChange, onOpenSignup, showTrigger = true }: LoginDialogProps) {
   const [internalOpen, setInternalOpen] = useState<boolean>(open ?? false)
+  const { setAuth } = useAuthContext()
 
   useEffect(() => {
     if (open !== undefined) setInternalOpen(open)
@@ -39,7 +40,6 @@ export default function LoginDialog({ open, onOpenChange, onOpenSignup, showTrig
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const { setAuth } = useAuthContext()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

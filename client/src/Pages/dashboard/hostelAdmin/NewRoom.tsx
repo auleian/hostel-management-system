@@ -6,12 +6,12 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import { mockHostels } from "@/lib/mock-data"
 import { ArrowLeft, Upload } from "lucide-react"
 import { Link, useNavigate } from "react-router-dom"
 import { toast } from "sonner"
 import { AdminLayout } from "@/components/AdminLayout"
 import api from "@/lib/api"
+import { useHostelStore } from "@/stores/hostelStore"
 
 interface RoomFormData {
   hostel: string
@@ -35,6 +35,7 @@ const roomAmenities = [
 
 export default function NewRoomPage() {
   const navigate = useNavigate()
+  const { hostels, fetchHostels } = useHostelStore()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formData, setFormData] = useState<RoomFormData>({
     hostel: "",
@@ -90,6 +91,11 @@ export default function NewRoomPage() {
     }
   }, [previews])
 
+  // Fetch hostels on mount
+  useEffect(() => {
+    fetchHostels()
+  }, [fetchHostels])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
@@ -102,7 +108,7 @@ export default function NewRoomPage() {
       }
 
       const form = new FormData()
-      form.append("hostel", "68e4bef6198828336a68b01b")
+      form.append("hostel", formData.hostel)
       form.append("roomNumber", formData.roomNumber)
       form.append("roomType", formData.roomType)
       form.append("price", String(Number(formData.price) || 0))
@@ -166,8 +172,8 @@ export default function NewRoomPage() {
                       <SelectValue placeholder="Choose a hostel" />
                     </SelectTrigger>
                     <SelectContent>
-                      {mockHostels.map((hostel) => (
-                        <SelectItem key={hostel.id} value={hostel.id}>
+                      {hostels.map((hostel) => (
+                        <SelectItem key={hostel._id} value={hostel._id}>
                           {hostel.name}
                         </SelectItem>
                       ))}

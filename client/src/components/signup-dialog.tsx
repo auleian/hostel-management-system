@@ -52,7 +52,12 @@ export function SignupDialog({ open, onOpenChange, showTrigger = true }: SignupD
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    telephone: "",
+    contact: "",
+    university: "",
+    nextOfKin: {
+      name: "",
+      contact: "",
+    },
     password: "",
     confirmPassword: "",
     userType: "student",
@@ -74,8 +79,8 @@ export function SignupDialog({ open, onOpenChange, showTrigger = true }: SignupD
       newErrors.email = 'Email is invalid'
     }
     
-    if (!formData.telephone) {
-      newErrors.telephone = 'Phone number is required'
+    if (!formData.contact) {
+      newErrors.contact = 'Phone number is required'
     }
 
     // university and next-of-kin are optional on the simplified server validation
@@ -104,10 +109,10 @@ export function SignupDialog({ open, onOpenChange, showTrigger = true }: SignupD
     setIsLoading(true)
     
     try {
-      const { confirmPassword, telephone, ...rest } = formData
+      const { confirmPassword, contact, ...rest } = formData
       const signupData = {
         ...rest,
-        contact: telephone // server expects 'contact' field
+        contact // server expects 'contact' field
       }
 
       const response = await api.post('/auth/register', signupData)
@@ -160,7 +165,7 @@ export function SignupDialog({ open, onOpenChange, showTrigger = true }: SignupD
           </Button>
         </DialogTrigger>
       )}
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Create Account</DialogTitle>
           <DialogDescription>Join HostelHub to find and book your perfect student accommodation.</DialogDescription>
@@ -195,11 +200,11 @@ export function SignupDialog({ open, onOpenChange, showTrigger = true }: SignupD
               id="signup-telephone"
               type="tel"
               placeholder="+256 700 000 000"
-              value={formData.telephone}
-              onChange={(e) => setFormData({ ...formData, telephone: e.target.value })}
-              className={errors.telephone ? 'border-red-500' : ''}
+              value={formData.contact}
+              onChange={(e) => setFormData({ ...formData, contact: e.target.value })}
+              className={errors.contact ? 'border-red-500' : ''}
             />
-            {errors.telephone && <p className="text-sm text-red-500">{errors.telephone}</p>}
+            {errors.contact && <p className="text-sm text-red-500">{errors.contact}</p>}
           </div>
           <div className="space-y-2">
             <Label htmlFor="signup-usertype">Account Type</Label>

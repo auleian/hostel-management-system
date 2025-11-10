@@ -65,7 +65,7 @@ export default function BookingsPage() {
       | {
           _id: string;
           name: string;
-          phone?: string;
+          contact?: string;
           email?: string;
         }
       | string;
@@ -281,7 +281,7 @@ export default function BookingsPage() {
                         </div>
                         <div>
                           <span className="font-medium">Contact:</span>{" "}
-                          {bookedby?.phone || "—"}
+                          {bookedby?.contact || "—"}
                         </div>
                       </div>
                     </div>
@@ -289,7 +289,7 @@ export default function BookingsPage() {
                     <div className="flex items-center gap-4 lg:flex-col lg:items-end">
                       <div className="text-right">
                         <p className="font-bold text-lg">
-                          UGX {(room?.price ?? 0).toFixed(0)}K
+                          UGX {(room?.price ?? 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                         </p>
                         <p className="text-xs text-muted-foreground">
                           per semester
