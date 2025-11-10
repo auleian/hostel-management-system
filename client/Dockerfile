@@ -14,7 +14,7 @@ RUN npm ci --silent
 COPY . .
 
 ARG VITE_API_BASE_URL
-RUN echo "VITE_API_BASE_URL=${VITE_API_BASE_URL}" >> .env
+RUN echo "VITE_API_BASE_URL=https://hostelmanagementapi-dev.onrender.com/api" >> .env
 
 
 # Build the Vite app
