@@ -9,7 +9,8 @@ import { useState, useEffect, useCallback } from "react"
 import api from '@/lib/api'
 import { Hostel } from "@/lib/types"
 import { useAuth } from "@/hooks/useAuth"
-
+import { useAuthContext } from "@/contexts/AuthContext"
+import { LoadingState } from "@/components/ui/loading-spinner"
 
 
 export default function HostelsPage() {
@@ -17,13 +18,14 @@ export default function HostelsPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const { user } = useAuthContext()
 
-  const { user, token } = useAuth()
+  const { token } = useAuth()
   const navigate = useNavigate()
   const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
 
 
-    const fetchHostels = useCallback(
+  const fetchHostels = useCallback(
     async (query = "") => {
       try {
         setLoading(true)
@@ -42,14 +44,9 @@ export default function HostelsPage() {
 
   useEffect(() => {
     if (!user) return
-    const role = (user as any).userType ?? (user as any).role ?? (user as any).type
-    if (role !== "admin") {
-      // send non-admin users back to the main site
-      navigate("/")
-      return
-    }
-    fetchHostels() 
-    
+
+    fetchHostels()
+
   }, [user, navigate, fetchHostels])
 
   // search
@@ -81,8 +78,8 @@ export default function HostelsPage() {
       setError((err as Error).message)
     }
   }
-  
-  
+
+
   return (
     <AdminLayout>
       <div className="space-y-8">
@@ -107,10 +104,10 @@ export default function HostelsPage() {
             <Input
               placeholder="Search hostels..."
               className="pl-10"
-              value={searchTerm} 
+              value={searchTerm}
               onChange={event => setSearchTerm(event.target.value)}
             />
-            {searchTerm && ( 
+            {searchTerm && (
               <button
                 onClick={handleClearSearch}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground hover:text-foreground"
@@ -121,7 +118,13 @@ export default function HostelsPage() {
           </div>
         </div>
 
-        {loading && <p className="text-muted-foreground">Loading hostels…</p>}
+        {loading && (
+          <LoadingState
+            title="Loading Dashboard"
+            description="Fetching hostels, rooms, and bookings data..."
+            size="xl"
+          />
+        )}
         {error && <p className="text-destructive">{error}</p>}
         {!loading && hostels.length === 0 && !error && (
           <p className="text-muted-foreground">No hostels found.</p>

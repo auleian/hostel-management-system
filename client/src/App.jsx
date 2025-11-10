@@ -18,6 +18,7 @@ import Settings from './Pages/dashboard/admin/Settings'
 import AdminHomePage from './Pages/dashboard/HomePage'
 import NewRoomPage from './Pages/dashboard/hostelAdmin/NewRoom'
 import ManageRoomPage from './Pages/dashboard/hostelAdmin/ManageRoom'
+import EditRoomPage from './Pages/dashboard/hostelAdmin/EditRoom'
 import BookingsPage from './Pages/dashboard/hostelAdmin/Bookings'
 
 
@@ -35,11 +36,12 @@ function App() {
         <Route path="/admin" element={<AdminHomePage />} />
         <Route path="/admin/hostels" element={<ManageHostelsPage />} />
         <Route path="/admin/hostels/new" element={<NewHostelPage />} />
-        <Route path="/admin/settings" element={<Settings />} />
-        <Route path="/admin/rooms/new" element={<NewRoomPage />} />
-        <Route path="/admin/rooms" element={<ManageRoomPage />} />
-        <Route path="/admin/bookings" element={<BookingsPage />} />
         <Route path="/admin/hostels/:id" element={<EditHostel />} />
+        <Route path="/admin/settings" element={<Settings />} />
+        <Route path="/admin/rooms" element={<ManageRoomPage />} />
+        <Route path="/admin/rooms/new" element={<NewRoomPage />} />
+        <Route path="/admin/rooms/:id" element={<EditRoomPage />} />
+        <Route path="/admin/bookings" element={<BookingsPage />} />
 
         
       </Routes>

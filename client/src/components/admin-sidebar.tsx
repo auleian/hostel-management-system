@@ -8,7 +8,6 @@ import { useAuthContext } from "@/contexts/AuthContext"
 
 const navigation = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
-  { name: "Home", href: "/", icon: HomeIcon },
   { name: "Hostels", href: "/admin/hostels", icon: Building2 },
   { name: "Rooms", href: "/admin/rooms", icon: Bed },
   { name: "Bookings", href: "/admin/bookings", icon: Calendar },
@@ -61,7 +60,9 @@ export function AdminSidebar() {
                 />
               </svg>
             </div>
-            <div>
+            <div onClick={() => {
+              window.location.href = "/";
+            }} className="cursor-pointer">
               <h1 className="text-xl font-bold text-sidebar-foreground">HostelHub</h1>
               <p className="text-xs text-muted-foreground">Admin Portal</p>
             </div>

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Link } from "react-router-dom"
 import { AdminLayout } from "@/components/AdminLayout"
 import api from "@/lib/api"
+import { LoadingState } from "@/components/ui/loading-spinner"
 
 export default function AdminDashboard() {
   const [hostels, setHostels] = useState<any[]>([])
@@ -142,12 +143,11 @@ export default function AdminDashboard() {
   if (loading) {
     return (
       <AdminLayout>
-        <div className="space-y-8">
-          <div>
-            <h1 className="text-3xl font-bold text-balance">Dashboard</h1>
-            <p className="text-muted-foreground mt-2">Loading dashboard data...</p>
-          </div>
-        </div>
+        <LoadingState 
+          title="Loading Dashboard" 
+          description="Fetching hostels, rooms, and bookings data..." 
+          size="xl"
+        />
       </AdminLayout>
     )
   }
