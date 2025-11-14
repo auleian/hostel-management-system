@@ -72,7 +72,7 @@ export const login = async (req, res) => {
   }
 };
 
-export const me = async (req, res) => {
+export const getCurrentUser = async (req, res) => {
   try {
     const userId = req.user?.id;
     if (!userId) return res.status(404).json({ msg: 'User not found' });
@@ -82,12 +82,12 @@ export const me = async (req, res) => {
     res.set('Cache-Control', 'no-store');
     res.json(user);
   } catch (err) {
-    logger.error("Error in me:", err);
+    logger.error("Error in getCurrentUser:", err);
     res.status(500).send('Server error');
   }
 };
 
-export const checkAdmin = async (req, res) => {
+export const isAdmin = async (req, res) => {
   try {
     const userId = req.user?.id;
     if (!userId) return res.status(404).json({ isAdmin: false });
@@ -98,7 +98,7 @@ export const checkAdmin = async (req, res) => {
     res.set('Cache-Control', 'no-store');
     res.json({ isAdmin });
   } catch (err) {
-    logger.error("Error in checkAdmin:", err);
+    logger.error("Error in isAdmin:", err);
     res.status(500).send('Server error');
   }
 };

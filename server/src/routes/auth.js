@@ -3,8 +3,8 @@ import { check } from 'express-validator';
 import {
   register,
   login,
-  me,
-  checkAdmin
+  getCurrentUser,
+  isAdmin
 } from '../controllers/authController.js';
 import { protect } from '../middleware/auth.js';
 
@@ -33,9 +33,9 @@ router.post(
 );
 
 // current user
-router.get('/me', protect, me);
+router.get('/me', protect, getCurrentUser);
 
 // check admin flag
-router.get('/check-admin', protect, checkAdmin);
+router.get('/check-admin', protect, isAdmin);
 
 export default router;
