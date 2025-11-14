@@ -1,5 +1,6 @@
 import Booking from "../models/bookingModel.js";
 import Room from "../models/roomModel.js";
+import { logger } from "../middleware/logger.js";
 
 export const createBooking = async (req, res) => {
   try {
@@ -29,6 +30,7 @@ export const createBooking = async (req, res) => {
     await booking.populate({ path: "room", populate: { path: "hostel" } });
     res.status(201).json({ message: "Booking created successfully", booking });
   } catch (error) {
+    logger.error("Failed to create booking:", error);
     res
       .status(400)
       .json({ message: "Failed to create booking", error: error.message });
@@ -44,6 +46,7 @@ export const getAllBookings = async (req, res) => {
       .sort({ createdAt: -1 });
     res.json(bookings);
   } catch (error) {
+    logger.error("Failed to get all bookings:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -65,6 +68,7 @@ export const updateBookingStatus = async (req, res) => {
 
     res.json({ message: "Booking status updated", booking });
   } catch (error) {
+    logger.error("Failed to update booking status:", error);
     res.status(500).json({ message: error.message });
   }
 };

@@ -1,11 +1,12 @@
 import jwt from 'jsonwebtoken';
+import { logger } from './logger.js';
 
 export const protect = (req, res, next) => {
   // Try Authorization header first then cookie
   const authHeader = req.header('Authorization') || req.headers['authorization'];
   let token;
-  console.log(`[protect] incoming request: ${req.method} ${req.path}`);
-  console.log(`[protect] Authorization header present: ${!!authHeader}`);
+  // logger.info(`[protect] incoming request: ${req.method} ${req.path}`);
+  // logger.info(`[protect] Authorization header present: ${!!authHeader}`);
   if (authHeader && authHeader.startsWith('Bearer ')) token = authHeader.split(' ')[1];
   else if (req.cookies && req.cookies.token) token = req.cookies.token;
 
@@ -18,7 +19,7 @@ export const protect = (req, res, next) => {
     req.user = decoded; // decoded = { id: ... }
     next();
   } catch (err) {
-    console.error('[protect] jwt.verify error:', err && err.message ? err.message : err);
+    logger.error('[protect] jwt.verify error:', err && err.message ? err.message : err);
     res.status(401).json({ msg: 'Token is not valid' });
   }
 };
