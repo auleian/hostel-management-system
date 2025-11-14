@@ -1,4 +1,5 @@
 import Room from '../models/roomModel.js'
+import { logger } from '../middleware/logger.js'
 
 
 //get all rooms with optional filters
@@ -23,6 +24,7 @@ export const getRooms = async (req, res) => {
         const rooms = await Room.find(filters).populate('hostel').populate('createdBy', 'username email')
         res.json(rooms)
     } catch (error) {
+        logger.error("Failed to get rooms:", error);
         res.status(500).json({ message: error.message })
     }
 }
@@ -47,6 +49,7 @@ export const addRoom = async (req, res) => {
         const newRoom = await room.save()
         res.status(201).json(newRoom)
     } catch (error) {
+        logger.error("Failed to add room:", error);
         res.status(400).json({ message: error.message })
     }
 }
@@ -60,6 +63,7 @@ export const getRoom = async (req, res) => {
         }
         res.json(room)
     } catch (error) {
+        logger.error("Failed to get room:", error);
         res.status(500).json({ message: error.message })
     }
 }
@@ -98,6 +102,7 @@ export const updateRoom = async (req, res) => {
         const updatedRoom = await room.save()
         res.json(updatedRoom)
     } catch (error) {
+        logger.error("Failed to update room:", error);
         res.status(400).json({ message: error.message })
     }
 }

@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import cors from "cors";
 import config from "./config/database.js";
 import { protect } from "./middleware/auth.js";
+import { logger } from "./middleware/logger.js";
 
 import authRoutes from "./Routes/auth.js";
 import bookingRoutes from "./Routes/bookingRoutes.js";
@@ -33,11 +34,11 @@ app.use(express.urlencoded({ extended: true }));
 // Database connection
 async function connectDB() {
   try {
-    console.log("Connecting to Database...");
+    logger.info("Connecting to Database...");
     await mongoose.connect(config.database);
-    console.log("Connected to Database");
+    logger.info("Connected to Database");
   } catch (error) {
-    console.error("Database connection error:", error.message);
+    logger.error("Database connection error:", error.message);
     process.exit(1); // stop server if DB fails
   }
 }
@@ -61,6 +62,6 @@ const PORT = process.env.PORT || 3100;
 
 
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  logger.info(`Server is running on port ${PORT}`);
 });
 

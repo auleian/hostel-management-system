@@ -3,3 +3,4 @@ routes/route.rest
 .env
 media/
 coverage/
+logs/

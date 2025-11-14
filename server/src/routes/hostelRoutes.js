@@ -3,6 +3,7 @@ import {getHostels, getHostel, addHostel, updateHostel, deleteHostel, findHostel
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import { logger } from "../middleware/logger.js";
 
 const storage = multer.diskStorage({
     destination: function (_req, _file, cb) {
@@ -10,7 +11,7 @@ const storage = multer.diskStorage({
         try {
             fs.mkdirSync(uploadPath, { recursive: true });
         } catch (e) {
-            console.error('Failed ensuring upload directory (hostels):', e);
+            logger.error('Failed ensuring upload directory (hostels):', e);
         }
         cb(null, uploadPath);
     },

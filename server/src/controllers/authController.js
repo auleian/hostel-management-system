@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { validationResult } from 'express-validator';
 import User from "../models/User.js";
+import { logger } from "../middleware/logger.js";
 
 
 const generateToken = (id) =>
@@ -36,7 +37,7 @@ export const register = async (req, res) => {
       user: { id: user._id, name: user.name, email: user.email, telephone: user.telephone, userType: user.userType }
     });
   } catch (err) {
-    console.error(err);
+    logger.error("Error in register:", err);
     res.status(500).send('Server error');
   }
 };
@@ -66,7 +67,7 @@ export const login = async (req, res) => {
       user: { id: user._id, name: user.name, email: user.email, userType: user.userType }
     });
   } catch (err) {
-    console.error(err);
+    logger.error("Error in login:", err);
     res.status(500).send('Server error');
   }
 };
@@ -81,7 +82,7 @@ export const me = async (req, res) => {
     res.set('Cache-Control', 'no-store');
     res.json(user);
   } catch (err) {
-    console.error(err);
+    logger.error("Error in me:", err);
     res.status(500).send('Server error');
   }
 };
@@ -97,7 +98,7 @@ export const checkAdmin = async (req, res) => {
     res.set('Cache-Control', 'no-store');
     res.json({ isAdmin });
   } catch (err) {
-    console.error(err);
+    logger.error("Error in checkAdmin:", err);
     res.status(500).send('Server error');
   }
 };

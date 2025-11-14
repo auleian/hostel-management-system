@@ -1,6 +1,7 @@
 import Hostel from '../models/hostelModel.js'
 import mongoose from 'mongoose'
 import Room from '../models/roomModel.js'
+import { logger } from '../middleware/logger.js'
 
 const normalizeAmenityValue = (val) => {
   if (!val && val !== 0) return null;
@@ -57,7 +58,7 @@ export const getHostels = async (req, res) => {
         filter.$and.push({ "priceRange.min": { $lte: Number(maxPrice) } });
       }
     }
-    /*console.log("Filter query:", JSON.stringify(filter, null, 2));*/
+    logger.debug("Filter query:", JSON.stringify(filter, null, 2));
 
     const hostels = await Hostel.find(filter)
 const hostelsWithPriceRange = hostels.map(h => {
@@ -190,7 +191,7 @@ export const deleteHostel = async (req, res) => {
         await Hostel.findByIdAndDelete(req.params.id) // NEW: real delete
         res.status(204).send()
     } catch (error) {
-        console.error('Delete hostel failed:', error)
+        logger.error('Delete hostel failed:', error)
         res.status(500).json({ message: 'Server error deleting hostel' })
     }
 }

@@ -3,6 +3,7 @@ import {addRoom, getRooms, getRoom} from "../controllers/roomController.js"
 import multer from "multer"
 import path from "path"
 import fs from "fs"
+import { logger } from "../middleware/logger.js"
 
 
 const storage = multer.diskStorage({
@@ -11,7 +12,7 @@ const storage = multer.diskStorage({
         try {
             fs.mkdirSync(uploadPath, { recursive: true });
         } catch (e) {
-            console.error('Failed ensuring upload directory:', e);
+            logger.error('Failed ensuring upload directory:', e);
         }
         cb(null, uploadPath);
     },
