@@ -7,7 +7,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -19,13 +18,13 @@ import {
 import {
   Calendar,
   Search,
-  Eye,
   CheckCircle,
   XCircle,
   Clock,
 } from "lucide-react";
 import { AdminLayout } from "@/components/AdminLayout";
 import api from "@/lib/api";
+import { LoadingState } from "@/components/ui/loading-spinner";
 
 const statusConfig = {
   confirmed: {
@@ -45,30 +44,30 @@ export default function BookingsPage() {
   type BookingType = {
     _id: string;
     room?:
-      | {
-          _id: string;
-          roomNumber: string;
-          roomType: string;
-          price: number;
-          hostel?: {
-            _id: string;
-            name: string;
-            location?: string;
-          };
-        }
-      | string;
+    | {
+      _id: string;
+      roomNumber: string;
+      roomType: string;
+      price: number;
+      hostel?: {
+        _id: string;
+        name: string;
+        location?: string;
+      };
+    }
+    | string;
 
     checkInDate: string;
     checkOutDate?: string;
 
     bookedby?:
-      | {
-          _id: string;
-          name: string;
-          contact?: string;
-          email?: string;
-        }
-      | string;
+    | {
+      _id: string;
+      name: string;
+      contact?: string;
+      email?: string;
+    }
+    | string;
 
     createdAt: string;
     status: "pending" | "confirmed" | "cancelled";
@@ -134,7 +133,13 @@ export default function BookingsPage() {
     }
   };
 
-  if (loading) return <p className="p-4">Loading bookings...</p>;
+  if (loading) return (
+    <LoadingState
+      title="Loading Dashboard"
+      description="Fetching hostels, rooms, and bookings data..."
+      size="xl"
+    />
+  );
 
   return (
     <AdminLayout>

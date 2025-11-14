@@ -4,10 +4,10 @@ import cors from "cors";
 import config from "./config/database.js";
 import { protect } from "./middleware/auth.js";
 
-import authRoutes from "./routes/auth.js";
-import bookingRoutes from "./routes/bookingRoutes.js";
-import hostelRoutes from "./routes/hostelRoutes.js";
-import roomRoutes from "./routes/roomRoutes.js";
+import authRoutes from "./Routes/auth.js";
+import bookingRoutes from "./Routes/bookingRoutes.js";
+import hostelRoutes from "./Routes/hostelRoutes.js";
+import roomRoutes from "./Routes/roomRoutes.js";
 
 import path from "path";
 import { fileURLToPath } from 'url';
