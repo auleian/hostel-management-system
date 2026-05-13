@@ -1,7 +1,7 @@
 import request from 'supertest';
 import express from 'express';
 import mongoose from 'mongoose';
-import authRoutes from '../Routes/auth.js';
+import authRoutes from '../routes/auth.js';
 import User from '../models/User.js';
 
 const app = express();

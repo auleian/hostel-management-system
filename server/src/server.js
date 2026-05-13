@@ -6,11 +6,11 @@ import config from "./config/database.js";
 import { protect } from "./middleware/auth.js";
 import { logger } from "./middleware/logger.js";
 
-import authRoutes from "./Routes/auth.js";
-import bookingRoutes from "./Routes/bookingRoutes.js";
-import hostelRoutes from "./Routes/hostelRoutes.js";
-import roomRoutes from "./Routes/roomRoutes.js";
-import paymentRoutes from "./Routes/paymentRoutes.js";
+import authRoutes from "./routes/auth.js";
+import bookingRoutes from "./routes/bookingRoutes.js";
+import hostelRoutes from "./routes/hostelRoutes.js";
+import roomRoutes from "./routes/roomRoutes.js";
+import paymentRoutes from "./routes/paymentRoutes.js";
 
 import path from "path";
 import { fileURLToPath } from 'url';
