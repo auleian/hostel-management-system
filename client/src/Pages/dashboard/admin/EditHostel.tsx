@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import api from '@/lib/api';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -48,12 +49,8 @@ const EditHostel = () => {
     const fetchHostelDetails = async () => {
       try {
         setLoading(true);
-        const url = apiBaseUrl.includes('/api')
-          ? `${apiBaseUrl}/hostels/${id}`
-          : `${apiBaseUrl}/api/hostels/${id}`;
-
-        console.log('Fetching from URL:', url);
-        const response = await axios.get(url);
+        console.log('Fetching hostel:', id);
+        const response = await api.get(`/hostels/${id}`);
         const hostel = response.data;
 
         setHostelData({
@@ -212,17 +209,11 @@ const EditHostel = () => {
         formData.append('images', image);
       });
 
-      const url = apiBaseUrl.includes('/api')
-        ? `${apiBaseUrl}/hostels/${id}`
-        : `${apiBaseUrl}/api/hostels/${id}`;
+      console.log('Updating hostel:', id);
 
-      console.log('Updating hostel at URL:', url);
-
-      await axios.patch(url, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        },
-        timeout: 30000 // 30 seconds timeout
+      await api.patch(`/hostels/${id}`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        timeout: 30000
       });
 
       toast({

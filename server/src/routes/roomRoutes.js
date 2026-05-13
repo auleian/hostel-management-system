@@ -4,6 +4,8 @@ import multer from "multer"
 import path from "path"
 import fs from "fs"
 import { logger } from "../middleware/logger.js"
+import { protect } from "../middleware/auth.js"
+import { requireAdmin } from "../middleware/requireAdmin.js"
 
 
 const storage = multer.diskStorage({
@@ -29,7 +31,7 @@ const upload = multer({
 
 
 const router = Router()
-router.post("/", upload.array("images"), addRoom)
+router.post("/", protect, requireAdmin, upload.array("images"), addRoom)
 router.get("/", getRooms)
 router.get("/:id", getRoom)
 

@@ -21,10 +21,12 @@ import ManageRoomPage from './Pages/dashboard/hostelAdmin/ManageRoom'
 import EditRoomPage from './Pages/dashboard/hostelAdmin/EditRoom'
 import BookingsPage from './Pages/dashboard/hostelAdmin/Bookings'
 
+import WhatsAppButton from './components/WhatsAppButton'
 
 function App() {
   return (
     <Router>
+      <WhatsAppButton />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/search" element={<SearchPage />} />

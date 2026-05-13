@@ -4,6 +4,8 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import { logger } from "../middleware/logger.js";
+import { protect } from "../middleware/auth.js";
+import { requireAdmin } from "../middleware/requireAdmin.js";
 
 const storage = multer.diskStorage({
     destination: function (_req, _file, cb) {
@@ -36,12 +38,12 @@ router.get('/:id', getHostel)
 
 //creating a hostel
 // Accept up to 5 images as 'images' field
-router.post('/', upload.array('images', 5), addHostel)
+router.post('/', protect, requireAdmin, upload.array('images', 5), addHostel)
 
 //updating a hostel (accept images too)
-router.patch('/:id', upload.array('images', 5), findHostel, updateHostel)
+router.patch('/:id', protect, requireAdmin, upload.array('images', 5), findHostel, updateHostel)
 
 //deleting a hostel
-router.delete('/:id', findHostel, deleteHostel);
+router.delete('/:id', protect, requireAdmin, findHostel, deleteHostel);
 
 export default router;

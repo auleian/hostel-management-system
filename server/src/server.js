@@ -1,6 +1,7 @@
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import config from "./config/database.js";
 import { protect } from "./middleware/auth.js";
 import { logger } from "./middleware/logger.js";
@@ -9,6 +10,7 @@ import authRoutes from "./Routes/auth.js";
 import bookingRoutes from "./Routes/bookingRoutes.js";
 import hostelRoutes from "./Routes/hostelRoutes.js";
 import roomRoutes from "./Routes/roomRoutes.js";
+import paymentRoutes from "./Routes/paymentRoutes.js";
 
 import path from "path";
 import { fileURLToPath } from 'url';
@@ -28,7 +30,15 @@ app.use('/media', express.static(path.join(__dirname, 'media')));
 
 // Middleware
 app.use(cors({ origin: "*" }));
-app.use(express.json());
+app.use(cookieParser());
+// Capture raw body for webhook signature verification
+app.use(express.json({
+  verify: (req, _res, buf) => {
+    if (req.originalUrl?.startsWith("/api/payments/webhooks")) {
+      req.rawBody = buf.toString("utf8");
+    }
+  },
+}));
 app.use(express.urlencoded({ extended: true }));
 
 // Database connection
@@ -44,11 +54,21 @@ async function connectDB() {
 }
 connectDB();
 
+// Health check (used to keep Render warm + monitor uptime)
+app.get("/api/health", (_req, res) => {
+  res.json({
+    status: "ok",
+    db: mongoose.connection.readyState === 1 ? "connected" : "disconnected",
+    uptimeSeconds: Math.round(process.uptime()),
+  });
+});
+
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/bookings", protect, bookingRoutes);
 app.use("/api/hostels", hostelRoutes);
 app.use("/api/rooms", roomRoutes);
+app.use("/api/payments", paymentRoutes);
 
 
 

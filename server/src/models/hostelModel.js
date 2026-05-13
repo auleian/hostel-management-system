@@ -43,7 +43,10 @@ const hostelSchema = new mongoose.Schema ({
     contactInfo: {
         type: String,
     },
-    
+    owner: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+    },
 })
 
 const Hostel = mongoose.model('Hostel', hostelSchema);

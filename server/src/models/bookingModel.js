@@ -25,6 +25,24 @@ const bookingSchema = new mongoose.Schema({
         enum:["pending", "confirmed", "cancelled"],
         default: "pending"
     },
+    amount: {
+        type: Number,
+        default: 0,
+    },
+    paymentStatus: {
+        type: String,
+        enum: ["unpaid", "pending", "paid", "failed", "refunded"],
+        default: "unpaid",
+    },
+    paymentProvider: {
+        type: String,
+        enum: ["mtn", "airtel", null],
+        default: null,
+    },
+    paymentReference: {
+        type: String,
+        default: null,
+    },
     createdAt: {
         type: Date,
         default: Date.now

@@ -97,6 +97,7 @@ export const addHostel = async (req, res) => {
     amenities: normalizeAmenities(req.body.amenities),
     genderPolicy: req.body.genderPolicy,
     contactInfo: req.body.contactInfo,
+    owner: req.body.owner || req.user?.id || undefined,
     priceRange: {
     min: req.body.priceRange?.min || req.body.price,
     max: req.body.priceRange?.max || req.body.price

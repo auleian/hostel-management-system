@@ -13,6 +13,7 @@ import api from "@/lib/api"
 import { LoadingState, LoadingSpinner } from "@/components/ui/loading-spinner"
 import { useAuthContext } from "@/contexts/AuthContext"
 import { useRoomStore } from "@/stores/roomStore"
+import PaymentDialog from "@/components/PaymentDialog"
 
 
 export default function BookingPage() {
@@ -32,6 +33,9 @@ export default function BookingPage() {
     phonenumber: "",
     checkInDate: "",
   })
+
+  const [paymentOpen, setPaymentOpen] = useState(false)
+  const [createdBookingId, setCreatedBookingId] = useState<string | null>(null)
 
   useEffect(() => {
     const loadRoom = async () => {
@@ -96,13 +100,18 @@ export default function BookingPage() {
         room: room._id,
         checkInDate: formData.checkInDate,
       }
-  await api.post('/bookings', payload)
+      const res = await api.post('/bookings', payload)
+      const bookingId = res.data?.booking?._id
       toast({
-        title: 'Booking Submitted!',
-        description: 'Your booking request has been received.',
+        title: 'Booking submitted',
+        description: 'Now complete payment to confirm.',
       })
-      // Navigate to a confirmation or home
-      setTimeout(() => navigate('/'), 1500)
+      if (bookingId) {
+        setCreatedBookingId(bookingId)
+        setPaymentOpen(true)
+      } else {
+        setTimeout(() => navigate('/'), 1500)
+      }
     } catch (err: any) {
       toast({
         title: 'Booking Failed',
@@ -284,6 +293,18 @@ export default function BookingPage() {
           <p>&copy; 2025 HostelHub. All rights reserved.</p>
         </div>
       </footer>
+
+      <PaymentDialog
+        open={paymentOpen}
+        onOpenChange={setPaymentOpen}
+        bookingId={createdBookingId}
+        amount={room?.price}
+        defaultPhone={(user as any)?.contact || (user as any)?.phone}
+        onPaid={() => {
+          setPaymentOpen(false)
+          setTimeout(() => navigate('/'), 1200)
+        }}
+      />
     </div>
   )
 }
